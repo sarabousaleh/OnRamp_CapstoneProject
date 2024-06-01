@@ -1,0 +1,119 @@
+.signin-container {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #bb5a5a;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(135, 60, 60, 0.1);
+    background-color: #eaceb4;
+}
+
+.signin-container h1 {
+    color: #bb5a5a;
+    text-align: center;
+}
+
+.signin-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: rgb(84, 37, 20);
+}
+
+.form-group input,
+.form-group select {
+    padding: 7px;
+    border: 1px solid #bb5a5a;
+    border-radius: 5px;
+    background-color: #f8f6ee;
+    color: rgb(84, 37, 20);
+}
+
+.signin-button {
+    grid-column: span 3;
+    padding: 10px;
+    background-color: #722a2a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.signin-button:hover {
+    background-color: rgb(84, 37, 20);
+}
+
+.login-link {
+    grid-column: span 3;
+    text-align: center;
+    font-size: 15px;
+    color: rgb(84, 37, 20);
+}
+
+.login-link a {
+    color: rgb(84, 37, 20);
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+    .signin-container {
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+    .signin-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .signin-button, .login-link {
+        grid-column: span 2;
+    }
+
+    .signin-button {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .login-link {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .signin-container {
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .signin-form {
+        grid-template-columns: 1fr;
+    }
+
+    .signin-button, .login-link {
+        grid-column: span 1;
+    }
+
+    .signin-button {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .login-link {
+        font-size: 10px;
+    }
+}

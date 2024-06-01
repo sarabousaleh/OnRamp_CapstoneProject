@@ -1,0 +1,40 @@
+.welcome-container{
+  background: #f9e9e4;
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  background-image: radial-gradient(circle, #bb5a5a 0.5px, transparent 0.5px);
+  background-size: 10px 10px; 
+}
+  
+.welcome-container .container{
+  display: flex;
+}
+  
+.welcome-container img{
+  border-radius: 50%;
+  width: 300px;
+  height: 300px;
+}
+
+.welcome-container .box1{
+  flex: 1; 
+}
+
+.welcome-container .box2{
+  flex: 1; 
+  padding-top: 20px;
+}
+  
+.welcome-container h1{
+  color: #bb5a5a;
+  text-align: center;
+  font-size: 35px;
+}
+
+.welcome-container p{
+  color: #e79e85;
+  font-size: 16px;
+}
