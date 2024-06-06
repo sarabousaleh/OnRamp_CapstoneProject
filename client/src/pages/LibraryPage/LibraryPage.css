@@ -35,3 +35,13 @@
     display: block; 
     border-radius: 100px;
 }
+/* LibraryPage.css */
+
+/* Container for the recommended readings section */
+.recommended-readings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center content horizontally */
+    gap: 20px; /* Space between books */
+    padding: 20px;
+}
