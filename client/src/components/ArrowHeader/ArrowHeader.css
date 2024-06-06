@@ -1,0 +1,28 @@
+.arrow-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 10px;
+}
+
+.back-button {
+    position: absolute;
+    left: 10px; 
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.arrow-icon {
+    font-size: 36px;
+    color: #bb5a5a;
+    margin-right: 10px; 
+}
+
+.h1-design {
+    margin: 0;
+    color: #a44a4a; 
+    text-align: center;
+    flex-grow: 1;
+}

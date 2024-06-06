@@ -1,0 +1,17 @@
+.NavBar {
+    background-color:#bb5a5a;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+  
+.NavBar a {
+    color: white; 
+    text-decoration: none;
+    margin-right: 10px;
+}
+  
+.NavBar a:hover {
+    text-decoration: underline;
+}
+
