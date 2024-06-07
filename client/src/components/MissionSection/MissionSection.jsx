@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './MissionSection.css'; 
-import '../../App.css'
+import '../../App.css';
 
 function MissionSection({ title, description, contacts }) {
   return (

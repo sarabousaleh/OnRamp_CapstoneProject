@@ -15,7 +15,7 @@ const JournalPage = () => {
             <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: '36px', color:'#bb5a5a', marginRight: '10px' }} />
             </button>
-            <h1 className="h1-design">Journal</h1>
+            <h1 className="h1-design">My Journal</h1>
         </div>
     );
 }

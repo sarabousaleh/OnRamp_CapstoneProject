@@ -141,3 +141,61 @@ app.delete('/notes/:id', authenticateToken, async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+app.get('/workshops', async (req, res) => {
+    try {
+        const workshops = await pool.query(`
+            SELECT w.*, t.name AS therapist_name 
+            FROM workshops w 
+            JOIN therapists t ON w.therapist_id = t.therapist_id
+            WHERE w.deleted_at IS NULL
+        `);
+        res.json(workshops.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
+    try {
+        const { workshopId } = req.params;
+        const { userId } = req.user;
+
+        // Check if the user is already registered for the workshop
+        const existingRegistration = await pool.query(
+            'SELECT * FROM workshop_registrations WHERE workshop_id = $1 AND user_id = $2',
+            [workshopId, userId]
+        );
+
+        if (existingRegistration.rows.length > 0) {
+            return res.status(400).json({ message: 'User is already registered for this workshop' });
+        }
+
+        // Insert the registration record
+        await pool.query(
+            'INSERT INTO workshop_registrations (workshop_id, user_id) VALUES ($1, $2)',
+            [workshopId, userId]
+        );
+
+        res.json({ message: 'User registered successfully for the workshop' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Fetch events route
+app.get('/events', async (req, res) => {
+    try {
+        const events = await pool.query(`
+            SELECT *
+            FROM events
+        `);
+        res.json(events.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+

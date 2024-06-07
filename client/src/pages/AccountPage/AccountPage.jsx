@@ -54,8 +54,8 @@ function AccountPage() {
           <span>My To Do List</span>
         </Link>
         
-        <button className="logout-button" onClick={handleLogout}>
-          <i className="fas fa-sign-out-alt"></i> Log Out </button>
+        <span className="logout-button" onClick={handleLogout}>
+          <i className="fas fa-sign-out-alt"></i> Log Out </span>
       </div>
       <div className="profile-flex-container">
         <div className="image-container">

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import CollapsibleContainer from '../../components/CollapsibleContainer/CollapsibleContainer';
 import './LibraryPage.css';
-import TipsComponent from '../TipsComponents/TipsComponent';
-import RecommendedReading from '../RecommendedReading/RecommendedReading';
+import TipsComponent from '../../components/TipsComponents/TipsComponent';
+import RecommendedReading from '../../components/Readings/Readings';
 const LibraryPage = () => {
     const recommendedReadings = [
         { title: 'Burnout: The Secret to Unlocking the Stress Cycle', author: 'Amelia Nagoski', imageUrl: 'https://m.media-amazon.com/images/I/71zXJffIQUL._AC_UF1000,1000_QL80_.jpg' },
@@ -15,9 +15,9 @@ const LibraryPage = () => {
         { title: 'The 7 Habits of Highly Effective People', author: 'Stephen Covey', imageUrl: 'https://m.media-amazon.com/images/I/71Koyhv2bML._AC_UF1000,1000_QL80_.jpg' },
         { title: 'Set Boundaries, Find Peace', author: 'Nedra Glover Tawwab', imageUrl: 'https://images.penguinrandomhouse.com/cover/9780593192092' },
         { title: 'Happy Days', author: 'Gabrielle Bernstein', imageUrl: 'https://m.media-amazon.com/images/I/41iZwH8ciML._AC_UF1000,1000_QL80_.jpg'},
-          {title: 'The Body Keeps Score', author: 'Bessel van der Kolk', imageUrl: 'https://m.media-amazon.com/images/I/71Ha3OShqSL._AC_UF1000,1000_QL80_.jpg'},
-          {title: 'Tiny Beautiful Things: Advice on Love and Life from Dear Sugar', author: 'Cheryl Strayed', imageUrl: 'https://m.media-amazon.com/images/I/51HDNk0YUmL._AC_UF1000,1000_QL80_.jpg'},
-          {title: 'When Things Fall Apart', author: 'Pema Chödrön', imageUrl: 'https://m.media-amazon.com/images/I/91naQhS6F3L._AC_UF1000,1000_QL80_.jpg'}
+        {title: 'The Body Keeps Score', author: 'Bessel van der Kolk', imageUrl: 'https://m.media-amazon.com/images/I/71Ha3OShqSL._AC_UF1000,1000_QL80_.jpg'},
+        {title: 'Tiny Beautiful Things: Advice on Love and Life from Dear Sugar', author: 'Cheryl Strayed', imageUrl: 'https://m.media-amazon.com/images/I/51HDNk0YUmL._AC_UF1000,1000_QL80_.jpg'},
+        {title: 'When Things Fall Apart', author: 'Pema Chödrön', imageUrl: 'https://m.media-amazon.com/images/I/91naQhS6F3L._AC_UF1000,1000_QL80_.jpg'}
     ];
 
 
@@ -88,11 +88,10 @@ const LibraryPage = () => {
     return (
         <>
             <ArrowHeader title="Your Library" />
-
             <CollapsibleContainer title="Common Mental Health Disorders">
-                <div className="disorder-buttons">
+                <div >
                     {disorders.map((disorder, index) => (
-                        <button key={index} onClick={() => handleDisorderClick(disorder)}>{disorder.name}</button>
+                        <button className='disorder-button' key={index} onClick={() => handleDisorderClick(disorder)}>{disorder.name}</button>
                     ))}
                 </div>
 
@@ -109,9 +108,8 @@ const LibraryPage = () => {
             </CollapsibleContainer>
             
             <CollapsibleContainer title="Tips for Mental Health Well Being">
-                {/* Practice Mindfulness and Meditation */}
                 <TipsComponent
-                    title="Practice Mindfulness and Meditation"
+                    title="1. Practice Mindfulness and Meditation"
                     tips={[
                         "Spend a few minutes each day focusing on your breath and being present in the moment.",
                         "Try guided meditation apps like Headspace or Calm.",
@@ -120,10 +118,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/54/4a/3e/544a3e173acd4a80806eba8e4551fafe.jpg"
                 />
-
-                {/* Stay Connected */}
+ 
                 <TipsComponent
-                    title="Stay Connected"
+                    title="2. Stay Connected"
                     tips={[
                         "Reach out to friends and family regularly.",
                         "Participate in community or support groups.",
@@ -132,10 +129,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/c7/09/41/c7094182e6003eddd44afa3dc46c55df.jpg"
                 />
-
-                {/* Limit Stress */}
+ 
                 <TipsComponent
-                    title="Limit Stress"
+                    title="3. Limit Stress"
                     tips={[
                         "Identify stress triggers and develop coping strategies.",
                         "Practice relaxation techniques such as deep breathing, progressive muscle relaxation, or yoga.",
@@ -144,10 +140,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/4b/09/df/4b09dfab8c969a055d4c2aebd7923f37.jpg"
                 />
-
-                {/* Get Regular Exercise */}
+ 
                 <TipsComponent
-                    title="Get Regular Exercise"
+                    title="4. Get Regular Exercise"
                     tips={[
                         "Physical activity can help reduce stress and improve mood.",
                         "Aim for at least 30 minutes of moderate exercise most days.",
@@ -156,10 +151,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/0c/7f/df/0c7fdf13405fbf376f1ac22c93047a88.jpg"
                 />
-
-                {/* Maintain a Healthy Diet */}
+ 
                 <TipsComponent
-                    title="Maintain a Healthy Diet"
+                    title="5. Maintain a Healthy Diet"
                     tips={[
                         "Eat balanced meals with plenty of fruits, vegetables, lean proteins, and whole grains.",
                         "Limit caffeine and sugar intake.",
@@ -168,8 +162,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/88/52/94/885294ec3852f863b97856a590db8183.jpg"
                 />
+
                 <TipsComponent
-                    title="Get Enough Sleep"
+                    title="6. Get Enough Sleep"
                     tips={[
                         "Establish a regular sleep schedule.",
                         "Create a calming bedtime routine and make your sleep environment comfortable.",
@@ -178,8 +173,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/7a/50/ea/7a50ea3c3d27c288b1cf7e11416202b0.jpg"
                 />
+
                 <TipsComponent
-                    title="Set Realistic Goals"
+                    title="7. Set Realistic Goals"
                     tips={[
                         "Break tasks into smaller steps and set achievable goals.",
                         "Celebrate your progress and accomplishments.",
@@ -188,8 +184,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/e1/31/5c/e1315c67dcef1816b529c39246f77383.jpg"
                 />
+
                 <TipsComponent
-                    title="Take Breaks and Rest"
+                    title="8. Take Breaks and Rest"
                     tips={[
                         "Allow yourself time to relax and recharge.",
                         "Practice self-compassion and avoid overloading yourself with tasks.",
@@ -198,8 +195,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/02/fe/56/02fe566198b22fcea70800144c08278a.jpg"
                 />
+
                 <TipsComponent
-                    title="Engage in Activities You Enjoy"
+                    title="9. Engage in Activities You Enjoy"
                     tips={[
                         "Dedicate time to hobbies and activities that bring you joy.",
                         "Explore new interests and creative outlets.",
@@ -208,8 +206,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/97/2e/9f/972e9fb664823be5292675d5f285e49b.jpg"
                 />
+
                 <TipsComponent
-                    title="Seek Professional Help When Needed"
+                    title="10. Seek Professional Help When Needed"
                     tips={[
                         "Don’t hesitate to reach out to a mental health professional if you’re struggling.",
                         "Use resources like therapy, counseling, or support hotlines.",
@@ -218,8 +217,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/736x/f0/28/a4/f028a41fd2e97e2a9d7be3a2756e84fd.jpg"
                 />
+
                 <TipsComponent
-                    title="Stay Informed"
+                    title="11. Stay Informed"
                     tips={[
                         "Educate yourself about mental health and well-being.",
                         "Read articles, watch videos, or listen to podcasts on mental health topics.",
@@ -228,8 +228,9 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/f0/ba/ce/f0bace1a1e14c7cd5b135e7055ef0828.jpg"
                 />
+
                 <TipsComponent
-                    title="Practice Gratitude"
+                    title="12. Practice Gratitude"
                     tips={[
                         "Keep a journal to note things you are grateful for each day.",
                         "Reflect on positive experiences and moments.",
@@ -238,20 +239,20 @@ const LibraryPage = () => {
                     ]}
                     photoUrl="https://i.pinimg.com/564x/29/0e/f1/290ef1d8da9b2ea17632e19b8e5d5bd4.jpg"
                 />
-
-                {/* Repeat this pattern for the remaining sets of tips */}
             </CollapsibleContainer>
 
-
-
             <CollapsibleContainer title="Some videos to know more and improve your mental health">
+                <p>These videos can help you to manage your mental health, and learn more about it!
+                    each channel has many videos that we recommend you watch for more information.
+                </p>
                 <div className="two-video-container">
                     <iframe width="400" height="280" src="https://www.youtube.com/embed/rkZl2gsLUp4?si=PhOWQ-aVl55MhXKV" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                     <iframe width="400" height="280" src="https://www.youtube.com/embed/LnJwH_PZXnM?si=83GdSImECw24ap4L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div className="two-video-container">
                     <iframe width="400" height="280" src="https://www.youtube.com/embed/qN8fzqw1WAk?si=AJ1G9RNSYq-SwEuL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    <iframe width="400" height="280" src="https://www.youtube.com/embed/gHHTeycXcFg?si=5xKqGnFDtjLLCkhR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+                    <iframe width="400" height="280" src="https://www.youtube.com/embed/gHHTeycXcFg?si=5xKqGnFDtjLLCkhR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
             </CollapsibleContainer>
 
             <CollapsibleContainer title="Recommended Readings">

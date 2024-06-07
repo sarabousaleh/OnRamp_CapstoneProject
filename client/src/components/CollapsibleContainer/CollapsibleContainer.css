@@ -36,7 +36,7 @@
     max-height: max-content;
 }
 
-button {
+.collapsible-container button {
     background-color: #973b3b;
     color: white;
     border: none;

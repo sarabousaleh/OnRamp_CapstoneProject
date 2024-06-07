@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import './RecommendedReading.css';
+import './Readings.css';
 
 const RecommendedReading = ({ title, author, imageUrl }) => {
     return (

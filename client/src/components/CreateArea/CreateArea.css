@@ -1,7 +1,7 @@
 .note-form {
   position: relative;
   width: 480px;
-  margin: 20px auto; 
+  margin: 20px auto;
   background: #fff;
   padding: 15px;
   border-radius: 7px;
@@ -27,10 +27,13 @@
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 50px; /* Adjusted to the larger size */
+  height: 50px; /* Adjusted to the larger size */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   outline: none;
 }
 
+.note-form button:hover {
+  background: #7f3333;
+}

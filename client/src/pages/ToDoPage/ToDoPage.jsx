@@ -5,6 +5,7 @@ import CreateArea from "../../components/CreateArea/CreateArea";
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import './ToDoPage.css'; // Ensure you have appropriate styling
 
 function ToDoPage() {
   const [notes, setNotes] = useState([]);

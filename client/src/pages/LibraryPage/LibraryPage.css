@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    border-radius: 10px;
 }
 
 .two-video-container {
@@ -12,6 +13,7 @@
 
 .two-video-container iframe {
     width: 49%;
+    border-radius: 20px;
 }
 
 .dual-container {
@@ -35,13 +37,32 @@
     display: block; 
     border-radius: 100px;
 }
-/* LibraryPage.css */
 
-/* Container for the recommended readings section */
 .recommended-readings-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Center content horizontally */
-    gap: 20px; /* Space between books */
+    justify-content: center; 
+    gap: 20px;
     padding: 20px;
+}
+
+.disorder-button {
+    color: #ffffff;
+    background-color: #bb5a5a;
+    margin: 10px;
+    text-align: center;
+    font-size: 1em;
+    padding: 10px 20px;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.disorder-button:hover {
+    background-color:  #7b0606;
+    color: #ffffff;
+    border-color: #973b3b;
+    text-decoration: underline;
 }

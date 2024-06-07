@@ -8,7 +8,6 @@
     display: inline-block;
 }
   
-
 .note h1 {
     font-size: 1.1em;
     margin-bottom: 6px;
@@ -23,7 +22,16 @@
   
 .note button {
     color: #bb5a5a;
+    background: white;
     border: none;
     cursor: pointer;
     outline: none;
+    border-radius: 10px;
+    width: 80px;
+    height: 50px;
+}
+
+.note button:hover {
+    color: #863a3a;
+    text-decoration: underline;
 }
