@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AccountPage.css';
+import UserWorkshops from '../../components/UserWorkshops/UserWorkshops';
 
 function AccountPage() {
   const [userData, setUserData] = useState({
@@ -70,8 +71,7 @@ function AccountPage() {
           <p>Nationality: {userData.nationality}</p>
         </div>
       </div>
-      <div className='button-container'>
-      </div>
+      <UserWorkshops />
     </>
   );
 }

@@ -25,11 +25,16 @@ app.use((req, res, next) => {
 
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
-    const token = req.cookies.token; // Read token from cookies
-    if (!token) return res.sendStatus(401); // No token, unauthorized
+    const token = req.cookies.token; // Extract token from cookies
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403); // Invalid token, forbidden
+        if (err) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
         req.user = user; // Attach user info to request
         next();
     });
@@ -73,7 +78,7 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
-        const token = jwt.sign({ username: user.rows[0].username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ user_id: user.rows[0].user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.cookie('token', token, { httpOnly: true, sameSite: 'Strict' }); // Set token in cookie
         res.json({ message: 'Login successful' });
@@ -85,7 +90,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality FROM users WHERE username = $1', [req.user.username]);
+        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality FROM users WHERE user_id = $1', [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
@@ -106,8 +111,8 @@ app.post('/notes', authenticateToken, async (req, res) => {
     try {
         const { title, content } = req.body;
         const newNote = await pool.query(
-            'INSERT INTO notes (username, title, content) VALUES ($1, $2, $3) RETURNING *',
-            [req.user.username, title, content]
+            'INSERT INTO notes (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
+            [req.user.user_id, title, content]
         );
         res.json(newNote.rows[0]);
     } catch (err) {
@@ -118,7 +123,7 @@ app.post('/notes', authenticateToken, async (req, res) => {
 
 app.get('/notes', authenticateToken, async (req, res) => {
     try {
-        const notes = await pool.query('SELECT * FROM notes WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
+        const notes = await pool.query('SELECT * FROM notes WHERE user_id = $1 ORDER BY created_at DESC', [req.user.user_id]);
         res.json(notes.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -129,7 +134,7 @@ app.get('/notes', authenticateToken, async (req, res) => {
 app.delete('/notes/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        await pool.query('DELETE FROM notes WHERE id = $1 AND username = $2', [id, req.user.username]);
+        await pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [id, req.user.user_id]);
         res.json({ message: 'Note deleted successfully' });
     } catch (err) {
         console.error('Server error:', err);
@@ -160,28 +165,26 @@ app.get('/workshops', async (req, res) => {
 app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
     try {
         const { workshopId } = req.params;
-        const { userId } = req.user;
+        const { user_id } = req.user;
 
-        // Check if the user is already registered for the workshop
         const existingRegistration = await pool.query(
-            'SELECT * FROM workshop_registrations WHERE workshop_id = $1 AND user_id = $2',
-            [workshopId, userId]
+            'SELECT * FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
+            [workshopId, user_id]
         );
 
         if (existingRegistration.rows.length > 0) {
             return res.status(400).json({ message: 'User is already registered for this workshop' });
         }
 
-        // Insert the registration record
         await pool.query(
-            'INSERT INTO workshop_registrations (workshop_id, user_id) VALUES ($1, $2)',
-            [workshopId, userId]
+            'INSERT INTO user_workshops (workshop_id, user_id, enrolled_at) VALUES ($1, $2, NOW())',
+            [workshopId, user_id]
         );
 
         res.json({ message: 'User registered successfully for the workshop' });
     } catch (err) {
         console.error('Server error:', err);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -199,3 +202,49 @@ app.get('/events', async (req, res) => {
     }
 });
 
+// Fetch registered workshops for a user
+app.get('/user-workshops', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user; // Assume req.user contains the user_id after authentication
+
+        const userWorkshops = await pool.query(
+            `SELECT w.*, uw.enrolled_at 
+             FROM workshops w 
+             JOIN user_workshops uw ON w.workshop_id = uw.workshop_id 
+             WHERE uw.user_id = $1`,
+            [user_id]
+        );
+
+        res.json(userWorkshops.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res) => {
+    try {
+        const { workshopId } = req.params;
+        const { user_id } = req.user;
+
+        // Check if the user is enrolled in the workshop
+        const existingRegistration = await pool.query(
+            'SELECT * FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
+            [workshopId, user_id]
+        );
+
+        if (existingRegistration.rows.length === 0) {
+            return res.status(404).json({ message: 'User is not enrolled in this workshop' });
+        }
+
+        // Withdraw the user from the workshop
+        await pool.query(
+            'DELETE FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
+            [workshopId, user_id]
+        );
+
+        res.json({ message: 'User withdrawn successfully from the workshop' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});

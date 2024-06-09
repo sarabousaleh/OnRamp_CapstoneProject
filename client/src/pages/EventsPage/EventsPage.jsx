@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"; 
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './EventsPage.css';
+import axios from 'axios';
 
 const EventsPage = () => {
     const [workshops, setWorkshops] = useState([]);
@@ -36,21 +37,13 @@ const EventsPage = () => {
 
     const registerForWorkshop = async (workshopId) => {
         try {
-            const response = await fetch(`http://localhost:5000/register-workshop/${workshopId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const data = await response.json();
-            console.log(data);
-            // Refetch workshops or update local state as needed
+            const response = await axios.post(`http://localhost:5000/register-workshop/${workshopId}`, {}, { withCredentials: true });
+            console.log('User registered successfully for the workshop', response.data);
         } catch (error) {
-            console.error('Error registering for workshop:', error);
+            console.error('Error registering for workshop:', error.response ? error.response.data : error.message);
         }
     };
-
+    
     return (
         <>
             <ArrowHeader title="Workshops & Events" />
@@ -71,6 +64,7 @@ const EventsPage = () => {
                                 <p><strong>Target Audience:</strong> {workshop.target_audience}</p>
                                 <p><strong>Therapist:</strong> {workshop.therapist_name}</p>
                                 <p><strong>Scheduled Time:</strong> {workshop.scheduled_at}</p>
+                                <p><strong>Cost:</strong> {workshop.cost}</p> {/* Display the cost */}
                                 <button className="participate-button" onClick={() => registerForWorkshop(workshop.workshop_id)}>Register</button>
                             </div>
                         </div>
@@ -93,6 +87,7 @@ const EventsPage = () => {
                                 <p>{event.description}</p>
                                 <p><strong>Date:</strong> {event.date}</p>
                                 <p><strong>Location:</strong> {event.location}</p>
+                                <p><strong>Cost:</strong> {event.cost}</p> {/* Display the cost */}
                                 <button className="participate-button">Register</button>
                             </div>
                         </div>
