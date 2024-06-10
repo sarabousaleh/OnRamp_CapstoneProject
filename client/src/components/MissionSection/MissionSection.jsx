@@ -8,7 +8,7 @@ function MissionSection({ title, description, contacts }) {
     <div className='mission-container'>
       <h1 className='h1-design'>{title}</h1>
       <p>{description}</p>
-      <div className="container">
+      <div className="mission-details-container">
         {contacts.map((contact, index) => (
           <div key={index} className="contact">
             <h2>{contact.name}</h2>

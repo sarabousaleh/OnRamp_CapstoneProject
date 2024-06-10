@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './EventsPage.css';
 import axios from 'axios';
@@ -39,11 +39,22 @@ const EventsPage = () => {
         try {
             const response = await axios.post(`http://localhost:5000/register-workshop/${workshopId}`, {}, { withCredentials: true });
             console.log('User registered successfully for the workshop', response.data);
+            alert('Congratulations! You have been registered for the workshop.');
         } catch (error) {
             console.error('Error registering for workshop:', error.response ? error.response.data : error.message);
         }
     };
-    
+
+    const registerForEvent = async (eventId) => {
+        try {
+            const response = await axios.post(`http://localhost:5000/register-event/${eventId}`, {}, { withCredentials: true });
+            console.log('User registered successfully for the event', response.data);
+            alert('Congratulations! You have been registered for the event.');
+        } catch (error) {
+            console.error('Error registering for event:', error.response ? error.response.data : error.message);
+        }
+    };
+
     return (
         <>
             <ArrowHeader title="Workshops & Events" />
@@ -64,7 +75,9 @@ const EventsPage = () => {
                                 <p><strong>Target Audience:</strong> {workshop.target_audience}</p>
                                 <p><strong>Therapist:</strong> {workshop.therapist_name}</p>
                                 <p><strong>Scheduled Time:</strong> {workshop.scheduled_at}</p>
-                                <p><strong>Cost:</strong> {workshop.cost}</p> {/* Display the cost */}
+                                <p><strong>Duration:</strong> {workshop.duration_minutes}</p>
+                                <p><strong>Cost:</strong> {workshop.cost}</p>
+                                <p><strong>Location:</strong> {workshop.location}</p>
                                 <button className="participate-button" onClick={() => registerForWorkshop(workshop.workshop_id)}>Register</button>
                             </div>
                         </div>
@@ -85,10 +98,11 @@ const EventsPage = () => {
                             <div className="event-info">
                                 <h2>{event.title}</h2>
                                 <p>{event.description}</p>
-                                <p><strong>Date:</strong> {event.date}</p>
+                                <p><strong>Date:</strong> {event.scheduled_at}</p>
+                                <p><strong>Duration:</strong> {event.duration_minutes}</p>
                                 <p><strong>Location:</strong> {event.location}</p>
-                                <p><strong>Cost:</strong> {event.cost}</p> {/* Display the cost */}
-                                <button className="participate-button">Register</button>
+                                <p><strong>Cost:</strong> {event.cost}</p>
+                                <button className="participate-button" onClick={() => registerForEvent(event.event_id)}>Register</button>
                             </div>
                         </div>
                     ))}

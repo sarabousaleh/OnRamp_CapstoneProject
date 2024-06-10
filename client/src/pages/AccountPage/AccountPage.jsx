@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AccountPage.css';
-import UserWorkshops from '../../components/UserWorkshops/UserWorkshops';
 
 function AccountPage() {
   const [userData, setUserData] = useState({
@@ -55,23 +54,27 @@ function AccountPage() {
           <span>My To Do List</span>
         </Link>
         
+        <Link to="/MyEvents_Workshops"> 
+          <i className="fas fa-calendar-alt"></i>
+          <span>My Events & Workshops</span>
+        </Link> 
+        
         <span className="logout-button" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i> Log Out </span>
-      </div>
-      <div className="profile-flex-container">
-        <div className="image-container">
-          <img src="https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg" alt="user" className="profile-image" />
         </div>
-        <div className="info-container">
-          <p>Username: {userData.username}</p>
-          <p>First Name: {userData.firstname}</p>
-          <p>Last Name: {userData.lastname}</p>
-          <p>Email: {userData.email}</p>
-          <p>Gender: {userData.gender}</p>
-          <p>Nationality: {userData.nationality}</p>
+        <div className="profile-flex-container">
+          <div className="image-container">
+            <img src="https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg" alt="user" className="profile-image" />
+          </div>
+          <div className="info-container">
+            <p>Username: {userData.username}</p>
+            <p>First Name: {userData.firstname}</p>
+            <p>Last Name: {userData.lastname}</p>
+            <p>Email: {userData.email}</p>
+            <p>Gender: {userData.gender}</p>
+            <p>Nationality: {userData.nationality}</p>
+          </div>
         </div>
-      </div>
-      <UserWorkshops />
     </>
   );
 }

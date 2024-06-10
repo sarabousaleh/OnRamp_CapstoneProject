@@ -16,6 +16,7 @@ import ToDoPage from './pages/ToDoPage/ToDoPage';
 import JournalPage from './pages/JournalPage/JournalPage';
 import SignInPage from './pages/SignInPage/SignInPage';
 import LogInPage from './pages/LogInPage/LogInPage';
+import MyEvents_Workshops from './pages/MyEvents_Workshops/MyEvents_Workshops';
 import axios from 'axios';
 
 function Layout({ children }) {
@@ -141,6 +142,18 @@ function App() {
             isLoggedIn ? (
               <Layout>
                 <JournalPage />
+              </Layout>
+            ) : (
+              <Navigate to="/LogInPage" />
+            )
+          }
+        />
+        <Route
+          path="/MyEvents_Workshops"
+          element={
+            isLoggedIn ? (
+              <Layout>
+                <MyEvents_Workshops />
               </Layout>
             ) : (
               <Navigate to="/LogInPage" />
