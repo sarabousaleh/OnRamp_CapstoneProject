@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Note from "../../components/Note/Note";
 import CreateArea from "../../components/CreateArea/CreateArea";
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import './ToDoPage.css'; // Ensure you have appropriate styling
+import './ToDoPage.css';
 
 function ToDoPage() {
   const [notes, setNotes] = useState([]);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -23,21 +23,21 @@ function ToDoPage() {
     fetchNotes();
   }, []);
 
-  function addNote(newNote) {
+  const addNote = (newNote) => {
     setNotes(prevNotes => [...prevNotes, newNote]);
-  }
+  };
 
-  async function deleteNote(id) {
+  const deleteNote = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/notes/${id}`, { withCredentials: true });
       setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
     } catch (error) {
       console.error('Error deleting note:', error);
     }
-  }
+  };
 
   const goBack = () => {
-    navigate(-1); // Define the goBack function
+    navigate(-1);
   };
 
   return (

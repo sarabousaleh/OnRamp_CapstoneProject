@@ -3,12 +3,10 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-
 import './MyEvents_Workshops.css';
 
 function MyEvents_Workshops() {
     const navigate = useNavigate();
-  
     const goBack = () => {
       navigate(-1);
     };
@@ -19,7 +17,7 @@ function MyEvents_Workshops() {
     useEffect(() => {
         const fetchUserWorkshops = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/workshops', { withCredentials: true });
+                const response = await axios.get('http://localhost:5000/user-workshops', { withCredentials: true });
                 setUserWorkshops(response.data);
             } catch (error) {
                 console.error('Error fetching user workshops:', error);
@@ -48,7 +46,6 @@ function MyEvents_Workshops() {
         }
     };
 
- 
     const handleWithdrawEvent = async (eventId) => {
         try {
             await axios.delete(`http://localhost:5000/withdraw-event/${eventId}`, { withCredentials: true });
@@ -57,6 +54,7 @@ function MyEvents_Workshops() {
             console.error('Error withdrawing from event:', error);
         }
     };
+
 
     return (
         <>

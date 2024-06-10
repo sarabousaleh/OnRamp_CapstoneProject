@@ -1,4 +1,3 @@
-// Import necessary modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -20,7 +19,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-    console.log(`Incoming ${req.method} request to ${req.url}`);
+    console.log('Incoming ${req.method} request to ${req.url}');
     next();
 });
 
@@ -44,8 +43,8 @@ app.post('/notes', authenticateToken, async (req, res) => {
     try {
         const { title, content } = req.body;
         const newNote = await pool.query(
-            'INSERT INTO notes (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
-            [req.user.user_id, title, content]
+            'INSERT INTO notes (username, title, content) VALUES ($1, $2, $3) RETURNING *',
+            [req.user.username, title, content]
         );
         res.json(newNote.rows[0]);
     } catch (err) {
@@ -56,7 +55,7 @@ app.post('/notes', authenticateToken, async (req, res) => {
 
 app.get('/notes', authenticateToken, async (req, res) => {
     try {
-        const notes = await pool.query('SELECT * FROM notes WHERE user_id = $1 ORDER BY created_at DESC', [req.user.user_id]);
+        const notes = await pool.query('SELECT * FROM notes WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
         res.json(notes.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -67,7 +66,7 @@ app.get('/notes', authenticateToken, async (req, res) => {
 app.delete('/notes/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        await pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [id, req.user.user_id]);
+        await pool.query('DELETE FROM notes WHERE id = $1 AND username = $2', [id, req.user.username]);
         res.json({ message: 'Note deleted successfully' });
     } catch (err) {
         console.error('Server error:', err);
@@ -112,7 +111,7 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
 
-        const token = jwt.sign({ user_id: user.rows[0].user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ user_id: user.rows[0].user_id, username: user.rows[0].username }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.cookie('token', token, { httpOnly: true, sameSite: 'Strict' });
         res.json({ message: 'Login successful' });
@@ -139,45 +138,6 @@ app.post('/logout', (req, res) => {
     res.json({ message: 'Logout successful' });
 });
 
-app.post('/notes', authenticateToken, async (req, res) => {
-    try {
-        const { title, content } = req.body;
-        const newNote = await pool.query(
-            'INSERT INTO notes (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
-            [req.user.user_id, title, content]
-        );
-        res.json(newNote.rows[0]);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-app.get('/notes', authenticateToken, async (req, res) => {
-    try {
-        const notes = await pool.query('SELECT * FROM notes WHERE user_id = $1 ORDER BY created_at DESC', [req.user.user_id]);
-        res.json(notes.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-app.delete('/notes/:id', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [id, req.user.user_id]);
-        res.json({ message: 'Note deleted successfully' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
 app.get('/workshops', async (req, res) => {
     try {
         const workshops = await pool.query(`
@@ -193,29 +153,39 @@ app.get('/workshops', async (req, res) => {
     }
 });
 
-app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
+app.get('/user-workshops', authenticateToken, async (req, res) => {
     try {
-        const { workshopId } = req.params;
         const { user_id } = req.user;
-
-        const existingRegistration = await pool.query(
-            'SELECT * FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
-            [workshopId, user_id]
+        const userWorkshops = await pool.query(
+            `SELECT w.*, uw.enrolled_at 
+             FROM workshops w 
+             JOIN user_workshops uw ON w.workshop_id = uw.workshop_id 
+             WHERE uw.user_id = $1`,
+            [user_id]
         );
 
-        if (existingRegistration.rows.length > 0) {
-            return res.status(400).json({ message: 'User is already registered for this workshop' });
-        }
-
-        await pool.query(
-            'INSERT INTO user_workshops (workshop_id, user_id, enrolled_at) VALUES ($1, $2, NOW())',
-            [workshopId, user_id]
-        );
-
-        res.json({ message: 'User registered successfully for the workshop' });
+        res.json(userWorkshops.rows);
     } catch (err) {
         console.error('Server error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send('Server error');
+    }
+});
+
+
+app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { workshopId } = req.params;
+
+        const result = await pool.query(
+            'INSERT INTO user_workshops (user_id, workshop_id, enrolled_at) VALUES ($1, $2, NOW()) RETURNING *',
+            [user_id, workshopId]
+        );
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
     }
 });
 
@@ -231,30 +201,20 @@ app.get('/events', async (req, res) => {
 
 app.post('/register-event/:eventId', authenticateToken, async (req, res) => {
     try {
-        const { eventId } = req.params;
         const { user_id } = req.user;
+        const { eventId } = req.params;
 
-        const existingRegistration = await pool.query(
-            'SELECT * FROM user_events WHERE event_id = $1 AND user_id = $2',
-            [eventId, user_id]
+        const result = await pool.query(
+            'INSERT INTO user_events (user_id, event_id, enrolled_at) VALUES ($1, $2, NOW()) RETURNING *',
+            [user_id, eventId]
         );
 
-        if (existingRegistration.rows.length > 0) {
-            return res.status(400).json({ message: 'User is already registered for this event' });
-        }
-
-        await pool.query(
-            'INSERT INTO user_events (event_id, user_id, enrolled_at) VALUES ($1, $2, NOW())',
-            [eventId, user_id]
-        );
-
-        res.json({ message: 'User registered successfully for the event' });
+        res.json(result.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send('Server error');
     }
 });
-
 app.get('/user-events', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
@@ -266,64 +226,52 @@ app.get('/user-events', authenticateToken, async (req, res) => {
             [user_id]
         );
 
-        res
-
-.json(userEvents.rows);
+        res.json(userEvents.rows);
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
     }
 });
 
+// Backend
+
+// Withdraw from workshop
 app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res) => {
     try {
-        const { workshopId } = req.params;
         const { user_id } = req.user;
-
-        const existingRegistration = await pool.query(
-            'SELECT * FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
-            [workshopId, user_id]
-        );
-
-        if (existingRegistration.rows.length === 0) {
-            return res.status(404).json({ message: 'User is not enrolled in this workshop' });
-        }
+        const { workshopId } = req.params;
 
         await pool.query(
-            'DELETE FROM user_workshops WHERE workshop_id = $1 AND user_id = $2',
-            [workshopId, user_id]
+            'DELETE FROM user_workshops WHERE user_id = $1 AND workshop_id = $2',
+            [user_id, workshopId]
         );
 
-        res.json({ message: 'User withdrawn successfully from the workshop' });
+        res.json({ message: 'Successfully withdrawn from the workshop' });
     } catch (err) {
         console.error('Server error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send('Server error');
     }
 });
 
-
+// Withdraw from event
 app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
     try {
-        const { eventId } = req.params;
         const { user_id } = req.user;
-
-        const existingRegistration = await pool.query(
-            'SELECT * FROM user_events WHERE event_id = $1 AND user_id = $2',
-            [eventId, user_id]
-        );
-
-        if (existingRegistration.rows.length === 0) {
-            return res.status(404).json({ message: 'User is not enrolled in this event' });
-        }
+        const { eventId } = req.params;
 
         await pool.query(
-            'DELETE FROM user_events WHERE event_id = $1 AND user_id = $2',
-            [eventId, user_id]
+            'DELETE FROM user_events WHERE user_id = $1 AND event_id = $2',
+            [user_id, eventId]
         );
 
-        res.json({ message: 'User withdrawn successfully from the event' });
+        res.json({ message: 'Successfully withdrawn from the event' });
     } catch (err) {
         console.error('Server error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send('Server error');
     }
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log('Server is running on port ${PORT}');
 });
