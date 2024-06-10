@@ -8,7 +8,7 @@ function Footer() {
         <div className="leftbox">
           <h4>Contact Us</h4>
           <p>Email: support@bloom.com</p>
-          <p>Phone: +961 81 835 725</p>
+          <p>Phone: +961 81 835 726</p>
         </div>
         <div className="middlebox">
           <h4>Mental Health Hotlines</h4>
