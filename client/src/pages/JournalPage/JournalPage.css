@@ -1,0 +1,70 @@
+.journal-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #bb5a5a;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #a14646;
+    background: #f9e9e4;
+    text-align: right;
+}
+
+.arrow-header {
+    display: flex;
+    align-items: center;
+}
+
+.h1-design {
+    color: #bb5a5a;
+    margin-bottom: 20px;
+}
+
+.journal-content {
+    margin-top: 20px;
+}
+
+.journal-textarea {
+    width: 780px;
+    padding: 10px;
+    border: 1px solid #bb5a5a;
+    border-radius: 5px;
+    background-color: white;
+    color: rgb(84, 37, 20);
+    resize: vertical;
+}
+
+.save-button {
+    padding: 10px;
+    background-color: #bb5a5a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.entry-list {
+    margin-top: 20px;
+}
+
+.entry-item {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #bb5a5a;
+    padding-bottom: 10px;
+}
+
+.entry-date {
+    color: #bb5a5a;
+    margin-bottom: 5px;
+}
+
+.entry-content {
+    color: rgb(84, 37, 20);
+}
+
+.p-journal{
+    margin: 30px;
+    color: #a14646;
+}

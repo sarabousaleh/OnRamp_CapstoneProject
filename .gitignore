@@ -4,3 +4,4 @@ node_modules/
 # Ignore specific files containing credentials
 db.js
 env.js
+.env

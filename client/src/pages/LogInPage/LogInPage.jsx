@@ -24,41 +24,41 @@ function LogInPage({ setIsLoggedIn }) {
       console.error('Login failed:', error);
     }
   };
-  const handleLogout = async () => {
-    try {
-        await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
-        navigate('/LogInPage');
-    } catch (error) {
-        console.error('Error logging out:', error);
-    }
-};
-
 
   return (
-    <div className="login-container">
-      <h1 className="h1-design">Log In</h1>
-      <form className="login-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+    <div className="background-container">
+      <div className="login-container">
+        <h1 className="h1-design">Log In</h1>
+        <div className="login-content">
+          <div className="login-right">
+            <img src="https://i.pinimg.com/564x/93/c9/7f/93c97ffbe12fb8b73b1ff89214585631.jpg" alt="Login Visual" className="login-image" />
+            <Link className="signin-link" to="/SignInPage">Don't have an account? Sign Up!</Link>
+          </div>
+          <div className="login-left">
+            <form className="login-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="username">Username:</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Password:</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <button className="login-button" type="submit">Login</button>
+            </form>
+          </div>
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <Link className="signin-link" to="/SignInPage">Don't have an account? Sign Up!</Link>
-        <button className="login-button" type="submit">Login</button>
-      </form>
+      </div>
     </div>
   );
 }

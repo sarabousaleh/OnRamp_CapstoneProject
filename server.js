@@ -271,6 +271,33 @@ app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
     }
 });
 
+// Endpoint to get journal entries for the authenticated user
+app.get('/journal_entries', async (req, res) => {
+    try {
+        const username = req.user.username;
+        const result = await pool.query('SELECT * FROM journal_entries WHERE username = $1 ORDER BY date DESC', [username]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+  
+app.post('/journal_entries', authenticateToken, async (req, res) => {
+    try {
+        const { username } = req.user;
+        const { date, content } = req.body;
+        const result = await pool.query(
+            'INSERT INTO journal_entries (username, date, content) VALUES ($1, $2, $3) RETURNING *',
+            [username, date, content]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
 // Start the server
 app.listen(PORT, () => {
     console.log('Server is running on port ${PORT}');

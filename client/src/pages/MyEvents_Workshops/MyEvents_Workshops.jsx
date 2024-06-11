@@ -66,7 +66,7 @@ function MyEvents_Workshops() {
         </div> 
             <div>
                 <div>
-                    <h2>My Workshops</h2>
+                    <h2 className='h2-workshop-events'>My Workshops</h2>
                     {userWorkshops.length > 0 ? (
                         userWorkshops.map((workshop, index) => (
                             <div key={index} className="workshop">
@@ -84,7 +84,7 @@ function MyEvents_Workshops() {
                     )}
                 </div>
                 <div>
-                    <h2>My Events</h2>
+                    <h2 className='h2-workshop-events'>My Events</h2>
                     {userEvents.length > 0 ? (
                         userEvents.map((event, index) => (
                             <div key={index} className="workshop">
