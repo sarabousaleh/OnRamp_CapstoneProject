@@ -75,26 +75,26 @@ app.delete('/notes/:id', authenticateToken, async (req, res) => {
 });
 
 app.post('/signup', async (req, res) => {
+    const { username, password_hash, firstname, lastname, dob, gender, email, nationality, telephoneNumber } = req.body;
+
+    if (!username || !password_hash || !firstname || !lastname || !dob || !gender || !email || !nationality || !telephoneNumber) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
     try {
-        const { username, password, firstname, lastname, dob, gender, email, nationality, telephoneNumber } = req.body;
-
-        if (!username || !password || !firstname || !lastname || !dob || !gender || !email || !nationality || !telephoneNumber) {
-            return res.status(400).json({ message: 'All fields are required' });
+        const user = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        if (user.rows.length > 0) {
+            return res.status(400).json({ message: 'Username already exists' });
         }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = await pool.query(
-            'INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-            [username, hashedPassword, firstname, lastname, dob, gender, email, nationality, telephoneNumber]
-        );
-
-        res.json(newUser.rows[0]);
+        const hashedPassword = await bcrypt.hash(password_hash, 10);
+        await pool.query('INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [username, hashedPassword, firstname, lastname, dob, gender, email, nationality, telephoneNumber]);
+        res.status(200).json({ message: 'User created successfully' });
     } catch (err) {
-        console.error(err.stack);
-        res.status(500).send('Server error');
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 app.post('/login', async (req, res) => {
     try {
@@ -270,6 +270,23 @@ app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+// Update user information
+app.post('/update_user', authenticateToken, async (req, res) => {
+    try {
+        const { username, firstname, lastname, email, gender, nationality } = req.body;
+        const userId = req.user.user_id; // Get the authenticated user's ID
+
+        const result = await pool.query(
+            'UPDATE users SET username = $1, firstname = $2, lastname = $3, email = $4, gender = $5, nationality = $6 WHERE user_id = $7 RETURNING *',
+            [username, firstname, lastname, email, gender, nationality, userId]
+        );
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
 
 // Get all journal entries for the authenticated user
 app.get('/journal_entries', authenticateToken, async (req, res) => {
@@ -388,6 +405,80 @@ app.post('/blogs/share/:blogId', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+// Route to fetch forums
+app.get('/forums', async (req, res) => {
+    try {
+        const forums = await pool.query('SELECT * FROM forums ORDER BY created_at DESC');
+        res.json(forums.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to fetch posts for a specific forum
+app.get('/forums/:forumId/posts', async (req, res) => {
+    try {
+        const { forumId } = req.params;
+        const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1 ORDER BY created_at DESC', [forumId]);
+        res.json(posts.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to fetch comments for a specific post
+app.get('/posts/:postId/comments', async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const comments = await pool.query('SELECT * FROM comments WHERE post_id = $1 ORDER BY created_at DESC', [postId]);
+        res.json(comments.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to fetch likes for a specific post
+app.get('/posts/:postId/likes', async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [postId]);
+        res.json(likes.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to handle liking a post
+app.post('/posts/:postId/like', authenticateToken, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { user_id } = req.user;
+        await pool.query('INSERT INTO likes (post_id, user_id) VALUES ($1, $2)', [postId, user_id]);
+        res.json({ message: 'Post liked successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to handle commenting on a post
+app.post('/posts/:postId/comment', authenticateToken, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { user_id } = req.user;
+        const { content } = req.body;
+        await pool.query('INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3)', [postId, user_id, content]);
+        res.json({ message: 'Comment added successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 
 // Start the server
 app.listen(PORT, () => {

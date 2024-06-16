@@ -50,15 +50,24 @@ function AccountPage() {
 
   const handleSave = async () => {
     try {
-      // Make a request to update user data
-      await axios.post('http://localhost:5000/update_user', editedUserData, { withCredentials: true });
-      setIsEditing(false); // Disable edit mode after saving
-      setUserData({ ...editedUserData }); // Update original user data with edited user data
-      navigate(-1); // Redirect to the previous page
+        // Make a request to update user data
+        const response = await axios.post('http://localhost:5000/update_user', editedUserData, { withCredentials: true });
+        if (response.status === 200) {
+            setIsEditing(false); // Disable edit mode after saving
+            setUserData({ ...editedUserData }); // Update original user data with edited user data
+        } else {
+            console.error('Error saving user data:', response.data);
+        }
     } catch (error) {
-      console.error('Error saving user data:', error);
+        console.error('Error saving user data:', error.response ? error.response.data : error.message);
+        if (error.response && error.response.status === 401) {
+            // Handle unauthorized error (e.g., token expired)
+            alert('Session expired. Please log in again.');
+            navigate('/LogInPage');
+        }
     }
-  };
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,124 +1,158 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
-import './BlogsPage.css'; // Import CSS file for styling
+import './BlogsPage.css';
 
 const BlogsPage = () => {
     const navigate = useNavigate();
-    const [blogs, setBlogs] = useState([]);
+    const [forums, setForums] = useState([]);
+    const [selectedForum, setSelectedForum] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [likes, setLikes] = useState([]);
 
     useEffect(() => {
-        fetchBlogs();
+        fetchForums();
     }, []);
 
-    const fetchBlogs = async () => {
+    useEffect(() => {
+        if (selectedForum) {
+            fetchPosts(selectedForum.forum_id);
+        }
+    }, [selectedForum]);
+
+    useEffect(() => {
+        if (selectedPost) {
+            fetchComments(selectedPost.post_id);
+            fetchLikes(selectedPost.post_id);
+        }
+    }, [selectedPost]);
+
+    const fetchForums = async () => {
         try {
-            const response = await fetch('http://localhost:5000/blogs', {
+            const response = await fetch('http://localhost:5000/forums', {
                 method: 'GET',
-                credentials: 'include', // Send cookies
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
             });
-            if (!response.ok) {
-                throw new Error('Failed to fetch blogs');
-            }
             const data = await response.json();
-            setBlogs(data);
+            setForums(data);
         } catch (error) {
-            console.error('Error fetching blogs:', error.message);
-            // Handle error (e.g., show error message)
+            console.error('Error fetching forums:', error.message);
         }
     };
 
-    const handleLike = async (blogId) => {
+    const fetchPosts = async (forumId) => {
         try {
-            const response = await fetch(`http://localhost:5000/blogs/like/${blogId}`, {
-                method: 'POST',
-                credentials: 'include', // Send cookies
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            const response = await fetch(`http://localhost:5000/forums/${forumId}/posts`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
             });
-            if (!response.ok) {
-                throw new Error('Failed to like blog');
-            }
-            // Refresh blogs after successful like
-            fetchBlogs();
+            const data = await response.json();
+            setPosts(data);
         } catch (error) {
-            console.error('Error liking blog:', error.message);
-            // Handle error (e.g., show error message)
+            console.error('Error fetching posts:', error.message);
         }
     };
 
-    const handleComment = async (blogId) => {
+    const fetchComments = async (postId) => {
         try {
-            const comment = prompt('Enter your comment:');
-            if (!comment) return;
-
-            const response = await fetch(`http://localhost:5000/blogs/comment/${blogId}`, {
-                method: 'POST',
-                credentials: 'include', // Send cookies
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ comment })
+            const response = await fetch(`http://localhost:5000/posts/${postId}/comments`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
             });
-            if (!response.ok) {
-                throw new Error('Failed to add comment');
-            }
-            // Refresh blogs after successful comment
-            fetchBlogs();
+            const data = await response.json();
+            setComments(data);
         } catch (error) {
-            console.error('Error commenting on blog:', error.message);
-            // Handle error (e.g., show error message)
+            console.error('Error fetching comments:', error.message);
         }
     };
 
-    const handleShare = async (blogId) => {
+    const fetchLikes = async (postId) => {
         try {
-            const response = await fetch(`http://localhost:5000/blogs/share/${blogId}`, {
-                method: 'POST',
-                credentials: 'include', // Send cookies
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            const response = await fetch(`http://localhost:5000/posts/${postId}/likes`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
             });
-            if (!response.ok) {
-                throw new Error('Failed to share blog');
-            }
-            // Refresh blogs after successful share
-            fetchBlogs();
+            const data = await response.json();
+            setLikes(data);
         } catch (error) {
-            console.error('Error sharing blog:', error.message);
-            // Handle error (e.g., show error message)
+            console.error('Error fetching likes:', error.message);
+        }
+    };
+
+    const handleLike = async (postId) => {
+        try {
+            await fetch(`http://localhost:5000/posts/${postId}/like`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            fetchLikes(postId);
+        } catch (error) {
+            console.error('Error liking post:', error.message);
+        }
+    };
+
+    const handleComment = async (postId) => {
+        try {
+            const content = prompt('Enter your comment:');
+            if (!content) return;
+
+            await fetch(`http://localhost:5000/posts/${postId}/comment`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            fetchComments(postId);
+        } catch (error) {
+            console.error('Error commenting on post:', error.message);
         }
     };
 
     return (
         <div className="blogs-container">
-            <ArrowHeader title="Blogs" />
-            {blogs.map(blog => (
-                <div key={blog.id} className="blog">
-                    <h2>{blog.title}</h2>
-                    <p>{blog.content}</p>
-                    <div className="actions">
-                        <button onClick={() => handleLike(blog.id)}>Like ({blog.likes})</button>
-                        <button onClick={() => handleComment(blog.id)}>Comment ({blog.comments.length})</button>
-                        <button onClick={() => handleShare(blog.id)}>Share</button>
+            <ArrowHeader title="Forums" />
+            <div className="forum-list">
+                {forums.map(forum => (
+                    <div key={forum.forum_id} className="forum" onClick={() => setSelectedForum(forum)}>
+                        <h2>{forum.name}</h2>
+                        <p>{forum.description}</p>
                     </div>
-                    <div className="comments">
-                        <h3>Comments:</h3>
-                        <ul>
-                            {blog.comments.map(comment => (
-                                <li key={comment.id}>
-                                    <strong>{comment.author}</strong>: {comment.comment}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                ))}
+            </div>
+            {selectedForum && (
+                <div className="posts-container">
+                    <ArrowHeader title={`Posts in ${selectedForum.name}`} />
+                    {posts.map(post => (
+                        <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
+                            <h2>{post.title}</h2>
+                            <p>{post.content}</p>
+                            <div className="actions">
+                                <button onClick={() => handleLike(post.post_id)}>Like ({likes.length})</button>
+                                <button onClick={() => handleComment(post.post_id)}>Comment ({comments.length})</button>
+                            </div>
+                        </div>
+                    ))}
+                    {selectedPost && (
+                        <div className="comments-container">
+                            <ArrowHeader title={`Comments on ${selectedPost.title}`} />
+                            <ul>
+                                {comments.map(comment => (
+                                    <li key={comment.comment_id}>
+                                        <strong>{comment.user_id}</strong>: {comment.content}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
-            ))}
+            )}
         </div>
     );
 };
