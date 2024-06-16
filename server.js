@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-    console.log('Incoming ${req.method} request to ${req.url}');
+    console.log(`Incoming ${req.method} request to ${req.url}`);
     next();
 });
 
@@ -39,6 +39,7 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Notes routes
 app.post('/notes', authenticateToken, async (req, res) => {
     try {
         const { title, content } = req.body;
@@ -74,8 +75,9 @@ app.delete('/notes/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// User routes
 app.post('/signup', async (req, res) => {
-    const { username, password_hash, firstname, lastname, dob, gender, email, nationality, telephoneNumber } = req.body;
+    const { username, password_hash, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url } = req.body;
 
     if (!username || !password_hash || !firstname || !lastname || !dob || !gender || !email || !nationality || !telephoneNumber) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -87,7 +89,10 @@ app.post('/signup', async (req, res) => {
             return res.status(400).json({ message: 'Username already exists' });
         }
         const hashedPassword = await bcrypt.hash(password_hash, 10);
-        await pool.query('INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [username, hashedPassword, firstname, lastname, dob, gender, email, nationality, telephoneNumber]);
+        await pool.query(
+            'INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers, profile_image_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+            [username, hashedPassword, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url]
+        );
         res.status(200).json({ message: 'User created successfully' });
     } catch (err) {
         console.error(err);
@@ -123,7 +128,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality FROM users WHERE user_id = $1', [req.user.user_id]);
+        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality, profile_image_url FROM users WHERE user_id = $1', [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
@@ -138,6 +143,37 @@ app.post('/logout', (req, res) => {
     res.json({ message: 'Logout successful' });
 });
 
+app.post('/update_user', authenticateToken, async (req, res) => {
+    try {
+        const { username, firstname, lastname, email, gender, nationality, profile_image_url, dob, telephone_number, password } = req.body;
+        const userId = req.user.user_id;
+
+        const updateUserQuery = `
+            UPDATE users
+            SET username = $1, firstname = $2, lastname = $3, email = $4, gender = $5, nationality = $6, profile_image_url = $7, dob = $8, telephone_numbers = $9
+            WHERE user_id = $10
+            RETURNING *;
+        `;
+        const updateUserParams = [username, firstname, lastname, email, gender, nationality, profile_image_url, dob, telephone_number, userId];
+
+        const userResult = await pool.query(updateUserQuery, updateUserParams);
+
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const updatePasswordQuery = 'UPDATE users SET password_hash = $1 WHERE user_id = $2';
+            await pool.query(updatePasswordQuery, [hashedPassword, userId]);
+        }
+
+        res.json(userResult.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+// Workshops routes
 app.get('/workshops', async (req, res) => {
     try {
         const workshops = await pool.query(`
@@ -171,7 +207,6 @@ app.get('/user-workshops', authenticateToken, async (req, res) => {
     }
 });
 
-
 app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
@@ -189,10 +224,48 @@ app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) =
     }
 });
 
+app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { workshopId } = req.params;
+
+        await pool.query(
+            'DELETE FROM user_workshops WHERE user_id = $1 AND workshop_id = $2',
+            [user_id, workshopId]
+        );
+
+        res.json({ message: 'Successfully withdrawn from the workshop' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Events routes
 app.get('/events', async (req, res) => {
     try {
         const events = await pool.query('SELECT * FROM events');
         res.json(events.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/user-events', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const userEvents = await pool.query(
+            `SELECT e.*, ue.enrolled_at 
+             FROM events e 
+
+
+             JOIN user_events ue ON e.event_id = ue.event_id 
+             WHERE ue.user_id = $1`,
+            [user_id]
+        );
+
+        res.json(userEvents.rows);
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
@@ -215,45 +288,7 @@ app.post('/register-event/:eventId', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-app.get('/user-events', authenticateToken, async (req, res) => {
-    try {
-        const { user_id } = req.user;
-        const userEvents = await pool.query(
-            `SELECT e.*, ue.enrolled_at 
-             FROM events e 
-             JOIN user_events ue ON e.event_id = ue.event_id 
-             WHERE ue.user_id = $1`,
-            [user_id]
-        );
 
-        res.json(userEvents.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Backend
-
-// Withdraw from workshop
-app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res) => {
-    try {
-        const { user_id } = req.user;
-        const { workshopId } = req.params;
-
-        await pool.query(
-            'DELETE FROM user_workshops WHERE user_id = $1 AND workshop_id = $2',
-            [user_id, workshopId]
-        );
-
-        res.json({ message: 'Successfully withdrawn from the workshop' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Withdraw from event
 app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
@@ -270,59 +305,36 @@ app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-// Update user information
-app.post('/update_user', authenticateToken, async (req, res) => {
-    try {
-        const { username, firstname, lastname, email, gender, nationality } = req.body;
-        const userId = req.user.user_id; // Get the authenticated user's ID
 
-        const result = await pool.query(
-            'UPDATE users SET username = $1, firstname = $2, lastname = $3, email = $4, gender = $5, nationality = $6 WHERE user_id = $7 RETURNING *',
-            [username, firstname, lastname, email, gender, nationality, userId]
-        );
-
-        res.json(result.rows[0]);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Get all journal entries for the authenticated user
-app.get('/journal_entries', authenticateToken, async (req, res) => {
-    try {
-        const username = req.user.username;
-        const result = await pool.query('SELECT * FROM journal_entries WHERE username = $1 ORDER BY date DESC', [username]);
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Add a new journal entry for the authenticated user
+// Journal routes
 app.post('/journal_entries', authenticateToken, async (req, res) => {
     try {
-        const { date, content } = req.body;
-        const { username } = req.user;
-        const result = await pool.query(
-            'INSERT INTO journal_entries (username, date, content) VALUES ($1, $2, $3) RETURNING *',
-            [username, date, content]
+        const { title, content } = req.body;
+        const newJournalEntry = await pool.query(
+            'INSERT INTO journal_entries (username, title, content) VALUES ($1, $2, $3) RETURNING *',
+            [req.user.username, title, content]
         );
-        res.status(201).json(result.rows[0]);
+        res.json(newJournalEntry.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
     }
 });
 
-// Add this to the existing app file
+app.get('/journal_entries', authenticateToken, async (req, res) => {
+    try {
+        const journalEntries = await pool.query('SELECT * FROM journal_entries WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
+        res.json(journalEntries.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
 
-// Delete a journal entry for the authenticated user
 app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const username = req.user.username;
-        await pool.query('DELETE FROM journal_entries WHERE id = $1 AND username = $2', [id, username]);
+        await pool.query('DELETE FROM journal_entries WHERE id = $1 AND username = $2', [id, req.user.username]);
         res.json({ message: 'Journal entry deleted successfully' });
     } catch (err) {
         console.error('Server error:', err);
@@ -330,27 +342,15 @@ app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Update a journal entry for the authenticated user
-app.put('/journal_entries/:id', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { content } = req.body;
-        const username = req.user.username;
-        const result = await pool.query(
-            'UPDATE journal_entries SET content = $1 WHERE id = $2 AND username = $3 RETURNING *',
-            [content, id, username]
-        );
-        res.json(result.rows[0]);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Route to fetch blogs
+// Blog routes
 app.get('/blogs', async (req, res) => {
     try {
-        const blogs = await pool.query('SELECT * FROM blogs ORDER BY created_at DESC'); // Adjust query based on your database schema
+        const blogs = await pool.query(`
+            SELECT b.*, t.name AS therapist_name 
+            FROM blogs b 
+            JOIN therapists t ON b.therapist_id = t.therapist_id
+            WHERE b.deleted_at IS NULL
+        `);
         res.json(blogs.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -358,57 +358,31 @@ app.get('/blogs', async (req, res) => {
     }
 });
 
-// Route to handle liking a blog
-app.post('/blogs/like/:blogId', authenticateToken, async (req, res) => {
+app.get('/blogs/:id', async (req, res) => {
     try {
-        const { user_id } = req.user;
-        const { blogId } = req.params;
+        const { id } = req.params;
+        const blog = await pool.query(`
+            SELECT b.*, t.name AS therapist_name 
+            FROM blogs b 
+            JOIN therapists t ON b.therapist_id = t.therapist_id 
+            WHERE b.blog_id = $1 AND b.deleted_at IS NULL
+        `, [id]);
 
-        // Example: Update the likes count in the database
-        await pool.query('UPDATE blogs SET likes = likes + 1 WHERE blog_id = $1', [blogId]);
+        if (blog.rows.length === 0) {
+            return res.status(404).json({ message: 'Blog not found' });
+        }
 
-        res.json({ message: 'Blog liked successfully' });
+        res.json(blog.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
     }
 });
 
-// Route to handle commenting on a blog
-app.post('/blogs/comment/:blogId', authenticateToken, async (req, res) => {
-    try {
-        const { user_id } = req.user;
-        const { blogId } = req.params;
-        const { comment } = req.body;
-
-        // Example: Insert comment into the database
-        await pool.query('INSERT INTO comments (blog_id, user_id, comment) VALUES ($1, $2, $3)', [blogId, user_id, comment]);
-
-        res.json({ message: 'Comment added successfully' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Route to handle sharing a blog (if required)
-app.post('/blogs/share/:blogId', authenticateToken, async (req, res) => {
-    try {
-        const { user_id } = req.user;
-        const { blogId } = req.params;
-
-        // Implement logic to handle sharing a blog (e.g., update share count in database)
-
-        res.json({ message: 'Blog shared successfully' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-// Route to fetch forums
+// Forum routes
 app.get('/forums', async (req, res) => {
     try {
-        const forums = await pool.query('SELECT * FROM forums ORDER BY created_at DESC');
+        const forums = await pool.query('SELECT * FROM forums');
         res.json(forums.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -416,71 +390,22 @@ app.get('/forums', async (req, res) => {
     }
 });
 
-// Route to fetch posts for a specific forum
-app.get('/forums/:forumId/posts', async (req, res) => {
+app.get('/forums/:id', async (req, res) => {
     try {
-        const { forumId } = req.params;
-        const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1 ORDER BY created_at DESC', [forumId]);
-        res.json(posts.rows);
+        const { id } = req.params;
+        const forum = await pool.query('SELECT * FROM forums WHERE forum_id = $1', [id]);
+
+        if (forum.rows.length === 0) {
+            return res.status(404).json({ message: 'Forum not found' });
+        }
+
+        res.json(forum.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
     }
 });
 
-// Route to fetch comments for a specific post
-app.get('/posts/:postId/comments', async (req, res) => {
-    try {
-        const { postId } = req.params;
-        const comments = await pool.query('SELECT * FROM comments WHERE post_id = $1 ORDER BY created_at DESC', [postId]);
-        res.json(comments.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Route to fetch likes for a specific post
-app.get('/posts/:postId/likes', async (req, res) => {
-    try {
-        const { postId } = req.params;
-        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [postId]);
-        res.json(likes.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Route to handle liking a post
-app.post('/posts/:postId/like', authenticateToken, async (req, res) => {
-    try {
-        const { postId } = req.params;
-        const { user_id } = req.user;
-        await pool.query('INSERT INTO likes (post_id, user_id) VALUES ($1, $2)', [postId, user_id]);
-        res.json({ message: 'Post liked successfully' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Route to handle commenting on a post
-app.post('/posts/:postId/comment', authenticateToken, async (req, res) => {
-    try {
-        const { postId } = req.params;
-        const { user_id } = req.user;
-        const { content } = req.body;
-        await pool.query('INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3)', [postId, user_id, content]);
-        res.json({ message: 'Comment added successfully' });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-
-// Start the server
 app.listen(PORT, () => {
-    console.log('Server is running on port ${PORT}');
+    console.log(`Server running on port ${PORT}`);
 });
