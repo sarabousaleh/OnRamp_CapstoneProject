@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { signup } from '../../api'; 
 import './SignInPage.css';
 
-
 const SignupForm = () => {
     const [formData, setFormData] = useState({
         username: '',
@@ -14,7 +13,7 @@ const SignupForm = () => {
         gender: '',
         email: '',
         nationality: '',
-        telephone_numbers: ''
+        telephoneNumber: ''
     });
 
     const handleSubmit = async (e) => {
@@ -40,7 +39,7 @@ const SignupForm = () => {
                 </div>
                 <div className='form-group'>
                     <label htmlFor='password'>Password:</label>
-                    <input type='password' name='password' onChange={handleChange} />
+                    <input type='password' name='password_hash' onChange={handleChange} />
                 </div>
                 <div className='form-group'>
                     <label htmlFor='firstname'>First Name:</label>

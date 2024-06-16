@@ -271,6 +271,124 @@ app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
     }
 });
 
+// Get all journal entries for the authenticated user
+app.get('/journal_entries', authenticateToken, async (req, res) => {
+    try {
+        const username = req.user.username;
+        const result = await pool.query('SELECT * FROM journal_entries WHERE username = $1 ORDER BY date DESC', [username]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Add a new journal entry for the authenticated user
+app.post('/journal_entries', authenticateToken, async (req, res) => {
+    try {
+        const { date, content } = req.body;
+        const { username } = req.user;
+        const result = await pool.query(
+            'INSERT INTO journal_entries (username, date, content) VALUES ($1, $2, $3) RETURNING *',
+            [username, date, content]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Add this to the existing app file
+
+// Delete a journal entry for the authenticated user
+app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const username = req.user.username;
+        await pool.query('DELETE FROM journal_entries WHERE id = $1 AND username = $2', [id, username]);
+        res.json({ message: 'Journal entry deleted successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Update a journal entry for the authenticated user
+app.put('/journal_entries/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.body;
+        const username = req.user.username;
+        const result = await pool.query(
+            'UPDATE journal_entries SET content = $1 WHERE id = $2 AND username = $3 RETURNING *',
+            [content, id, username]
+        );
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to fetch blogs
+app.get('/blogs', async (req, res) => {
+    try {
+        const blogs = await pool.query('SELECT * FROM blogs ORDER BY created_at DESC'); // Adjust query based on your database schema
+        res.json(blogs.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to handle liking a blog
+app.post('/blogs/like/:blogId', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { blogId } = req.params;
+
+        // Example: Update the likes count in the database
+        await pool.query('UPDATE blogs SET likes = likes + 1 WHERE blog_id = $1', [blogId]);
+
+        res.json({ message: 'Blog liked successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to handle commenting on a blog
+app.post('/blogs/comment/:blogId', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { blogId } = req.params;
+        const { comment } = req.body;
+
+        // Example: Insert comment into the database
+        await pool.query('INSERT INTO comments (blog_id, user_id, comment) VALUES ($1, $2, $3)', [blogId, user_id, comment]);
+
+        res.json({ message: 'Comment added successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Route to handle sharing a blog (if required)
+app.post('/blogs/share/:blogId', authenticateToken, async (req, res) => {
+    try {
+        const { user_id } = req.user;
+        const { blogId } = req.params;
+
+        // Implement logic to handle sharing a blog (e.g., update share count in database)
+
+        res.json({ message: 'Blog shared successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log('Server is running on port ${PORT}');
