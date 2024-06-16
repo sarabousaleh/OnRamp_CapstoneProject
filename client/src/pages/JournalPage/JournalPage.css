@@ -21,11 +21,11 @@
 }
 
 .journal-content {
-    margin-top: 20px;
+    margin: 20px;
 }
 
-.journal-textarea {
-    width: 780px;
+.journal-textarea, .edit-textarea {
+    width: 97%;
     padding: 10px;
     border: 1px solid #bb5a5a;
     border-radius: 5px;
@@ -43,16 +43,43 @@
     cursor: pointer;
     font-size: 16px;
     margin-top: 10px;
+    width: fit-content;
+    align-self: center;
 }
 
-.entry-list {
-    margin-top: 20px;
+.entry-list-container {
+    width: 98%;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .entry-item {
-    margin-bottom: 20px;
-    border-bottom: 1px solid #bb5a5a;
-    padding-bottom: 10px;
+    width: calc(50% - 20px); /* For desktop and tablet */
+    padding: 10px;
+    border: 1px solid #bb5a5a;
+    border-radius: 5px;
+    background: #f9e9e4;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.entry-item.expanded {
+    width: calc(100% - 20px); /* Expand to full width */
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entry-actions {
+    display: flex;
+    align-items: center;
 }
 
 .entry-date {
@@ -62,9 +89,50 @@
 
 .entry-content {
     color: rgb(84, 37, 20);
+    display: -webkit-box;
+    -webkit-line-clamp: 4; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.p-journal{
+.entry-content.expanded {
+    -webkit-line-clamp: unset;
+}
+
+.p-journal {
     margin: 30px;
     color: #a14646;
+}
+
+.edit-entry {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-textarea {
+    height: auto;
+    overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .entry-item {
+        width: calc(97% - 20px); /* For tablets and smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .entry-item {
+        width: 94%; /* For phone sizes */
+        margin: 10px 0; /* Adjust margin for better spacing */
+    }
+
+    .entry-item.expanded {
+        width: 94%; /* For phone sizes */
+    }
+
+    .save-button {
+        width: 100%; /* Full width button on small screens */
+        text-align: center;
+    }
 }

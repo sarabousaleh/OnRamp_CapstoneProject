@@ -1,63 +1,126 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './BlogsPage.css'; // Import CSS file for styling
 
 const BlogsPage = () => {
     const navigate = useNavigate();
-  
-    const goBack = () => {
-      navigate(-1);
+    const [blogs, setBlogs] = useState([]);
+
+    useEffect(() => {
+        fetchBlogs();
+    }, []);
+
+    const fetchBlogs = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/blogs', {
+                method: 'GET',
+                credentials: 'include', // Send cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch blogs');
+            }
+            const data = await response.json();
+            setBlogs(data);
+        } catch (error) {
+            console.error('Error fetching blogs:', error.message);
+            // Handle error (e.g., show error message)
+        }
     };
 
-    // Simulated data for a blog
-    const blog = {
-        id: 1,
-        title: 'Sample Blog Title',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pretium, justo nec congue commodo, lorem libero congue justo, at lacinia lorem dui nec dolor. Nulla eget justo vel enim tristique aliquet sit amet quis justo. Nam feugiat mi in est convallis, ac tempus neque tempor. Integer facilisis euismod enim non eleifend.',
-        likes: 10,
-        comments: [
-            { id: 1, author: 'User1', comment: 'Great blog!' },
-            { id: 2, author: 'User2', comment: 'Awesome content!' }
-        ]
+    const handleLike = async (blogId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/blogs/like/${blogId}`, {
+                method: 'POST',
+                credentials: 'include', // Send cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to like blog');
+            }
+            // Refresh blogs after successful like
+            fetchBlogs();
+        } catch (error) {
+            console.error('Error liking blog:', error.message);
+            // Handle error (e.g., show error message)
+        }
     };
 
-    const handleLike = () => {
-        // Implement logic to handle liking a blog
+    const handleComment = async (blogId) => {
+        try {
+            const comment = prompt('Enter your comment:');
+            if (!comment) return;
+
+            const response = await fetch(`http://localhost:5000/blogs/comment/${blogId}`, {
+                method: 'POST',
+                credentials: 'include', // Send cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ comment })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add comment');
+            }
+            // Refresh blogs after successful comment
+            fetchBlogs();
+        } catch (error) {
+            console.error('Error commenting on blog:', error.message);
+            // Handle error (e.g., show error message)
+        }
     };
 
-    const handleComment = () => {
-        // Implement logic to handle commenting on a blog
+    const handleShare = async (blogId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/blogs/share/${blogId}`, {
+                method: 'POST',
+                credentials: 'include', // Send cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to share blog');
+            }
+            // Refresh blogs after successful share
+            fetchBlogs();
+        } catch (error) {
+            console.error('Error sharing blog:', error.message);
+            // Handle error (e.g., show error message)
+        }
     };
 
-    const handleShare = () => {
-        // Implement logic to handle sharing a blog
-    };
-
-    return(
+    return (
         <div className="blogs-container">
             <ArrowHeader title="Blogs" />
-            <div className="blog">
-                <h2>{blog.title}</h2>
-                <p>{blog.content}</p>
-                <div className="actions">
-                    <button onClick={handleLike}>Like ({blog.likes})</button>
-                    <button onClick={handleComment}>Comment ({blog.comments.length})</button>
-                    <button onClick={handleShare}>Share</button>
+            {blogs.map(blog => (
+                <div key={blog.id} className="blog">
+                    <h2>{blog.title}</h2>
+                    <p>{blog.content}</p>
+                    <div className="actions">
+                        <button onClick={() => handleLike(blog.id)}>Like ({blog.likes})</button>
+                        <button onClick={() => handleComment(blog.id)}>Comment ({blog.comments.length})</button>
+                        <button onClick={() => handleShare(blog.id)}>Share</button>
+                    </div>
+                    <div className="comments">
+                        <h3>Comments:</h3>
+                        <ul>
+                            {blog.comments.map(comment => (
+                                <li key={comment.id}>
+                                    <strong>{comment.author}</strong>: {comment.comment}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
-                <div className="comments">
-                    <h3>Comments:</h3>
-                    <ul>
-                        {blog.comments.map(comment => (
-                            <li key={comment.id}>
-                                <strong>{comment.author}</strong>: {comment.comment}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            ))}
         </div>
     );
-}
+};
 
 export default BlogsPage;

@@ -60,42 +60,85 @@ function AccountPage() {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedUserData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
   return (
     <>
-      <h1 className='h1-design'>Your Account</h1>
+      <h1 className="h1-design">Your Account</h1>
       <div className="icons-container">
         <Link to="/JournalPage">
           <i className="fa fa-book"></i>
           <span>My Journal</span>
         </Link>
-      
+
         <Link to="/ToDoPage">
           <i className="fa fa-list"></i>
           <span>My To Do List</span>
         </Link>
-        
-        <Link to="/MyEvents_Workshops"> 
+
+        <Link to="/MyEvents_Workshops">
           <i className="fas fa-calendar-alt"></i>
           <span>My Events & Workshops</span>
-        </Link> 
-        
+        </Link>
+
         <span className="logout-button" onClick={handleLogout}>
-          <i className="fas fa-sign-out-alt"></i> Log Out </span>
+          <i className="fas fa-sign-out-alt"></i> Log Out{' '}
+        </span>
       </div>
-      
+
       <div className="profile-flex-container">
         <div className="image-container">
-          <img src="https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg" alt="user" className="profile-image" />
+          <img
+            src="https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg"
+            alt="user"
+            className="profile-image"
+          />
         </div>
         <div className="info-container">
           {isEditing ? (
             <>
-              <input type="text" value={editedUserData.username} onChange={(e) => setEditedUserData({ ...editedUserData, username: e.target.value })} />
-              <input type="text" value={editedUserData.firstname} onChange={(e) => setEditedUserData({ ...editedUserData, firstname: e.target.value })} />
-              <input type="text" value={editedUserData.lastname} onChange={(e) => setEditedUserData({ ...editedUserData, lastname: e.target.value })} />
-              <input type="email" value={editedUserData.email} onChange={(e) => setEditedUserData({ ...editedUserData, email: e.target.value })} />
-              <input type="text" value={editedUserData.gender} onChange={(e) => setEditedUserData({ ...editedUserData, gender: e.target.value })} />
-              <input type="text" value={editedUserData.nationality} onChange={(e) => setEditedUserData({ ...editedUserData, nationality: e.target.value })} />
+              <input
+                type="text"
+                name="username"
+                value={editedUserData.username}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="firstname"
+                value={editedUserData.firstname}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="lastname"
+                value={editedUserData.lastname}
+                onChange={handleChange}
+              />
+              <input
+                type="email"
+                name="email"
+                value={editedUserData.email}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="gender"
+                value={editedUserData.gender}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                name="nationality"
+                value={editedUserData.nationality}
+                onChange={handleChange}
+              />
               <button onClick={handleSave}>Save</button>
             </>
           ) : (
