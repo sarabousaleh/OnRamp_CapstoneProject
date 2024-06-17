@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './BlogsPage.css';
 
 const BlogsPage = () => {
-    const navigate = useNavigate();
     const [forums, setForums] = useState([]);
     const [selectedForum, setSelectedForum] = useState(null);
     const [posts, setPosts] = useState([]);
     const [selectedPost, setSelectedPost] = useState(null);
     const [comments, setComments] = useState([]);
-    const [likes, setLikes] = useState([]);
+    const [likes, setLikes] = useState({});
+    const [likedPosts, setLikedPosts] = useState(new Set());
 
     useEffect(() => {
         fetchForums();
@@ -26,6 +25,7 @@ const BlogsPage = () => {
         if (selectedPost) {
             fetchComments(selectedPost.post_id);
             fetchLikes(selectedPost.post_id);
+            checkIfLiked(selectedPost.post_id);
         }
     }, [selectedPost]);
 
@@ -36,6 +36,9 @@ const BlogsPage = () => {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) {
+                throw new Error(`Error fetching forums: ${response.statusText}`);
+            }
             const data = await response.json();
             setForums(data);
         } catch (error) {
@@ -50,6 +53,9 @@ const BlogsPage = () => {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) {
+                throw new Error(`Error fetching posts: ${response.statusText}`);
+            }
             const data = await response.json();
             setPosts(data);
         } catch (error) {
@@ -59,11 +65,11 @@ const BlogsPage = () => {
 
     const fetchComments = async (postId) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/comments`, {
-                method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const response = await fetch(`http://localhost:5000/posts/${postId}/comments`);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`Error fetching comments: ${error.error}`);
+            }
             const data = await response.json();
             setComments(data);
         } catch (error) {
@@ -78,38 +84,73 @@ const BlogsPage = () => {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) {
+                throw new Error(`Error fetching likes: ${response.statusText}`);
+            }
             const data = await response.json();
-            setLikes(data);
+            setLikes(prevLikes => ({ ...prevLikes, [postId]: data.length }));
         } catch (error) {
             console.error('Error fetching likes:', error.message);
         }
     };
 
-    const handleLike = async (postId) => {
+    const checkIfLiked = async (postId) => {
         try {
-            await fetch(`http://localhost:5000/posts/${postId}/like`, {
-                method: 'POST',
+            const response = await fetch(`http://localhost:5000/posts/${postId}/liked`, {
+                method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
             });
-            fetchLikes(postId);
+            if (!response.ok) {
+                throw new Error(`Error checking if liked: ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.liked) {
+                setLikedPosts(prev => new Set(prev.add(postId)));
+            }
+        } catch (error) {
+            console.error('Error checking if liked:', error.message);
+        }
+    };
+
+    const handleLike = async (postId, userId) => {
+        try {
+            const response = await fetch(`http://localhost:5000/posts/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId }),
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`Error liking post: ${error.error}`);
+            }
+            const data = await response.json();
+            setLikes(prevLikes => ({ ...prevLikes, [postId]: (prevLikes[postId] || 0) + 1 }));
+            setLikedPosts(prev => new Set(prev.add(postId)));
+            console.log('Post liked:', data);
         } catch (error) {
             console.error('Error liking post:', error.message);
         }
     };
 
-    const handleComment = async (postId) => {
+    const handleComment = async (postId, userId, content) => {
         try {
-            const content = prompt('Enter your comment:');
-            if (!content) return;
-
-            await fetch(`http://localhost:5000/posts/${postId}/comment`, {
+            const response = await fetch(`http://localhost:5000/posts/${postId}/comment`, {
                 method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId, content }),
             });
-            fetchComments(postId);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`Error commenting on post: ${error.error}`);
+            }
+            const data = await response.json();
+            setComments(prevComments => [data, ...prevComments]);
+            console.log('Comment posted:', data);
         } catch (error) {
             console.error('Error commenting on post:', error.message);
         }
@@ -134,8 +175,23 @@ const BlogsPage = () => {
                             <h2>{post.title}</h2>
                             <p>{post.content}</p>
                             <div className="actions">
-                                <button onClick={() => handleLike(post.post_id)}>Like ({likes.length})</button>
-                                <button onClick={() => handleComment(post.post_id)}>Comment ({comments.length})</button>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLike(post.post_id, 1); // Replace 1 with the actual userId
+                                    }} 
+                                    disabled={likedPosts.has(post.post_id)}
+                                >
+                                    {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
+                                </button>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleComment(post.post_id, 1, 'Great post!'); // Replace 1 and 'Great post!' with actual userId and comment
+                                    }}
+                                >
+                                    Comment ({comments.length})
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -145,7 +201,7 @@ const BlogsPage = () => {
                             <ul>
                                 {comments.map(comment => (
                                     <li key={comment.comment_id}>
-                                        <strong>{comment.user_id}</strong>: {comment.content}
+                                        <strong>{comment.username}</strong>: {comment.content}
                                     </li>
                                 ))}
                             </ul>

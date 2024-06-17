@@ -128,7 +128,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality, profile_image_url FROM users WHERE user_id = $1', [req.user.user_id]);
+        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality, profile_image_url, dob, telephone_numbers FROM users WHERE user_id = $1', [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
@@ -342,51 +342,14 @@ app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Blog routes
-app.get('/blogs', async (req, res) => {
-    try {
-        const blogs = await pool.query(`
-            SELECT b.*, t.name AS therapist_name 
-            FROM blogs b 
-            JOIN therapists t ON b.therapist_id = t.therapist_id
-            WHERE b.deleted_at IS NULL
-        `);
-        res.json(blogs.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
 
-app.get('/blogs/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const blog = await pool.query(`
-            SELECT b.*, t.name AS therapist_name 
-            FROM blogs b 
-            JOIN therapists t ON b.therapist_id = t.therapist_id 
-            WHERE b.blog_id = $1 AND b.deleted_at IS NULL
-        `, [id]);
-
-        if (blog.rows.length === 0) {
-            return res.status(404).json({ message: 'Blog not found' });
-        }
-
-        res.json(blog.rows[0]);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Forum routes
 app.get('/forums', async (req, res) => {
     try {
         const forums = await pool.query('SELECT * FROM forums');
         res.json(forums.rows);
     } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
+        console.error('Error fetching forums:', err.message);
+        res.status(500).json({ error: 'Server error while fetching forums' });
     }
 });
 
@@ -396,13 +359,83 @@ app.get('/forums/:id', async (req, res) => {
         const forum = await pool.query('SELECT * FROM forums WHERE forum_id = $1', [id]);
 
         if (forum.rows.length === 0) {
-            return res.status(404).json({ message: 'Forum not found' });
+            return res.status(404).json({ error: 'Forum not found' });
         }
 
         res.json(forum.rows[0]);
     } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
+        console.error('Error fetching forum:', err.message);
+        res.status(500).json({ error: 'Server error while fetching forum' });
+    }
+});
+
+app.get('/forums/:id/posts', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1', [id]);
+        res.json(posts.rows);
+    } catch (err) {
+        console.error('Error fetching posts:', err.message);
+        res.status(500).json({ error: 'Server error while fetching posts' });
+    }
+});
+
+app.get('/posts/:id/comments', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const comments = await pool.query('SELECT * FROM comments WHERE post_id = $1', [id]);
+        res.json(comments.rows);
+    } catch (err) {
+        console.error('Error fetching comments:', err.message);
+        res.status(500).json({ error: 'Server error while fetching comments' });
+    }
+});
+
+app.get('/posts/:id/likes', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [id]);
+        res.json(likes.rows);
+    } catch (err) {
+        console.error('Error fetching likes:', err.message);
+        res.status(500).json({ error: 'Server error while fetching likes' });
+    }
+});
+
+app.get('/posts/:id/liked', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userId } = req.query;
+        const liked = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, userId]);
+
+        res.json({ liked: liked.rows.length > 0 });
+    } catch (err) {
+        console.error('Error checking if liked:', err.message);
+        res.status(500).json({ error: 'Server error while checking if liked' });
+    }
+});
+
+app.post('/posts/:id/like', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userId } = req.body;
+        await pool.query('INSERT INTO likes (post_id, user_id) VALUES ($1, $2)', [id, userId]);
+        res.json({ message: 'Post liked' });
+    } catch (err) {
+        console.error('Error liking post:', err.message);
+        res.status(500).json({ error: 'Server error while liking post' });
+    }
+});
+
+app.post('/posts/:id/comment', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userId, content } = req.body;
+        const newComment = await pool.query('INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *', [id, userId, content]);
+        res.json(newComment.rows[0]);
+    } catch (err) {
+        console.error('Error commenting on post:', err.message);
+        res.status(500).json({ error: 'Server error while commenting on post' });
     }
 });
 
