@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -9,6 +10,11 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not defined in environment variables');
+    process.exit(1);
+}
 
 // Middleware
 app.use(cors({
@@ -100,7 +106,6 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -128,7 +133,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT username, firstname, lastname, email, gender, nationality, profile_image_url, dob, telephone_numbers FROM users WHERE user_id = $1', [req.user.user_id]);
+        const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
@@ -170,7 +175,6 @@ app.post('/update_user', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
 
 
 // Workshops routes

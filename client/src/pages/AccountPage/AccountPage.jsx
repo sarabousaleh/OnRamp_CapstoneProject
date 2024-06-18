@@ -12,7 +12,7 @@ function AccountPage() {
     gender: '',
     nationality: '',
     dob: '',
-    telephone_number: '',
+    telephone_numbers: '',  // Ensure telephone number is included
     profileImage: '',
   });
   const [editedUserData, setEditedUserData] = useState({ ...userData });
@@ -169,7 +169,7 @@ function AccountPage() {
                   { label: 'Gender', name: 'gender', type: 'text' },
                   { label: 'Nationality', name: 'nationality', type: 'text' },
                   { label: 'Date of Birth', name: 'dob', type: 'date' },
-                  { label: 'Telephone Number', name: 'telephone_number', type: 'text' },
+                  { label: 'Telephone Number', name: 'telephone_numbers', type: 'text' },
                 ].map(({ label, name, type }) => (
                   <label key={name}>
                     {label}:
@@ -215,9 +215,11 @@ function AccountPage() {
               <p>Email: <strong>{userData.email}</strong></p>
               <p>Gender: <strong>{userData.gender}</strong></p>
               <p>Nationality: <strong>{userData.nationality}</strong></p>
-              <p>Date of Birth: <strong>{userData.dob}</strong></p>
-              <p>Telephone Number: <strong>{userData.telephone_number}</strong></p>
-              <button className='edit-save-button' onClick={handleEdit}>Edit</button>
+              <p>Date of Birth: <strong>{new Date(userData.dob).toLocaleDateString()}</strong></p>
+              <p>Telephone Number: <strong>{userData.telephone_numbers}</strong></p> {/* Displaying telephone number */}
+              <div className='button-container-acc'>
+                <button className="edit-save-button" onClick={handleEdit}>Edit</button>
+              </div>
             </>
           )}
         </div>
