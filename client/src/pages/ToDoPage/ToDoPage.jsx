@@ -3,8 +3,7 @@ import axios from 'axios';
 import Note from "../../components/Note/Note";
 import CreateArea from "../../components/CreateArea/CreateArea";
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './ToDoPage.css';
 
 function ToDoPage() {
@@ -36,18 +35,9 @@ function ToDoPage() {
     }
   };
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
   return (
     <div className="journal-page-container">
-      <div className="arrow-header">
-        <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: '36px', color:'#bb5a5a', marginRight: '10px' }} />
-        </button>
-        <h1 className="h1-design">Your To Do List</h1>
-      </div>
+      <ArrowHeader title="Your To Do List" />
       <CreateArea onAdd={addNote} />
       {notes.map(note => (
         <Note

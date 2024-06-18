@@ -343,36 +343,47 @@ app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
 });
 
 
-app.get('/forums', async (req, res) => {
+// app.get('/forums', async (req, res) => {
+//     try {
+//         const forums = await pool.query('SELECT * FROM forums');
+//         res.json(forums.rows);
+//     } catch (err) {
+//         console.error('Error fetching forums:', err.message);
+//         res.status(500).json({ error: 'Server error while fetching forums' });
+//     }
+// });
+
+// app.get('/forums/:id', async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const forum = await pool.query('SELECT * FROM forums WHERE forum_id = $1', [id]);
+
+//         if (forum.rows.length === 0) {
+//             return res.status(404).json({ error: 'Forum not found' });
+//         }
+
+//         res.json(forum.rows[0]);
+//     } catch (err) {
+//         console.error('Error fetching forum:', err.message);
+//         res.status(500).json({ error: 'Server error while fetching forum' });
+//     }
+// });
+
+// app.get('/forums/:id/posts', async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1', [id]);
+//         res.json(posts.rows);
+//     } catch (err) {
+//         console.error('Error fetching posts:', err.message);
+//         res.status(500).json({ error: 'Server error while fetching posts' });
+//     }
+// });
+// Change the existing posts route to fetch all posts
+// Modify the existing posts route to fetch all posts
+app.get('/posts', async (req, res) => {
     try {
-        const forums = await pool.query('SELECT * FROM forums');
-        res.json(forums.rows);
-    } catch (err) {
-        console.error('Error fetching forums:', err.message);
-        res.status(500).json({ error: 'Server error while fetching forums' });
-    }
-});
-
-app.get('/forums/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const forum = await pool.query('SELECT * FROM forums WHERE forum_id = $1', [id]);
-
-        if (forum.rows.length === 0) {
-            return res.status(404).json({ error: 'Forum not found' });
-        }
-
-        res.json(forum.rows[0]);
-    } catch (err) {
-        console.error('Error fetching forum:', err.message);
-        res.status(500).json({ error: 'Server error while fetching forum' });
-    }
-});
-
-app.get('/forums/:id/posts', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1', [id]);
+        const posts = await pool.query('SELECT * FROM posts');
         res.json(posts.rows);
     } catch (err) {
         console.error('Error fetching posts:', err.message);
@@ -380,6 +391,26 @@ app.get('/forums/:id/posts', async (req, res) => {
     }
 });
 
+// Add a new endpoint for searching posts by title
+app.get('/search-posts', async (req, res) => {
+    const { title } = req.query;
+    try {
+        const searchQuery = `
+            SELECT * 
+            FROM posts 
+            WHERE LOWER(title) LIKE $1
+        `;
+        const searchTerm = `%${title.toLowerCase()}%`;
+        const posts = await pool.query(searchQuery, [searchTerm]);
+        res.json(posts.rows);
+    } catch (err) {
+        console.error('Error searching posts:', err.message);
+        res.status(500).json({ error: 'Server error while searching posts' });
+    }
+});
+
+
+// Modify the comments, likes, liked, and like routes to use /posts/:id format
 app.get('/posts/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;

@@ -6,7 +6,6 @@ import './LogInPage.css';
 function LogInPage({ setIsLoggedIn }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/account" } };
@@ -19,10 +18,11 @@ function LogInPage({ setIsLoggedIn }) {
         setIsLoggedIn(true);
         navigate(from);
       } else {
-        setError('Login failed: ' + response.data.message);
+        alert('Login failed: ' + response.data.message); // Display alert message
+        console.log('Login failed :', response.data.message); // Log to console for debugging
       }
     } catch (error) {
-      setError('Login failed: ' + (error.response ? error.response.data.message : error.message));
+      alert('Login failed: ' + (error.response ? error.response.data.message : error.message)); // Display alert message
     }
   };
 
@@ -56,7 +56,6 @@ function LogInPage({ setIsLoggedIn }) {
                 />
               </div>
               <button className="login-button" type="submit">Login</button>
-              {error && <p className="error-message">{error}</p>}
             </form>
           </div>
         </div>

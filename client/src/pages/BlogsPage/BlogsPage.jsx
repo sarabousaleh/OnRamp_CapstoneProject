@@ -1,54 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './BlogsPage.css';
 
 const BlogsPage = () => {
-    const [forums, setForums] = useState([]);
-    const [selectedForum, setSelectedForum] = useState(null);
     const [posts, setPosts] = useState([]);
     const [selectedPost, setSelectedPost] = useState(null);
-    const [comments, setComments] = useState([]);
+    const [commentsMap, setCommentsMap] = useState({});
     const [likes, setLikes] = useState({});
     const [likedPosts, setLikedPosts] = useState(new Set());
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredPosts, setFilteredPosts] = useState([]);
 
     useEffect(() => {
-        fetchForums();
+        fetchPosts();
     }, []);
 
-    useEffect(() => {
-        if (selectedForum) {
-            fetchPosts(selectedForum.forum_id);
-        }
-    }, [selectedForum]);
-
-    useEffect(() => {
-        if (selectedPost) {
-            fetchComments(selectedPost.post_id);
-            fetchLikes(selectedPost.post_id);
-            checkIfLiked(selectedPost.post_id);
-        }
-    }, [selectedPost]);
-
-    const fetchForums = async () => {
+    const fetchPosts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/forums', {
-                method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching forums: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setForums(data);
-        } catch (error) {
-            console.error('Error fetching forums:', error.message);
-        }
-    };
-
-    const fetchPosts = async (forumId) => {
-        try {
-            const response = await fetch(`http://localhost:5000/forums/${forumId}/posts`, {
+            const response = await fetch('http://localhost:5000/posts', {
                 method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
@@ -58,10 +27,19 @@ const BlogsPage = () => {
             }
             const data = await response.json();
             setPosts(data);
+            setFilteredPosts(data); // Initially show all posts
         } catch (error) {
             console.error('Error fetching posts:', error.message);
         }
     };
+
+    useEffect(() => {
+        if (selectedPost) {
+            fetchComments(selectedPost.post_id);
+            fetchLikes(selectedPost.post_id);
+            checkIfLiked(selectedPost.post_id);
+        }
+    }, [selectedPost]);
 
     const fetchComments = async (postId) => {
         try {
@@ -71,7 +49,10 @@ const BlogsPage = () => {
                 throw new Error(`Error fetching comments: ${error.error}`);
             }
             const data = await response.json();
-            setComments(data);
+            setCommentsMap(prevCommentsMap => ({
+                ...prevCommentsMap,
+                [postId]: data
+            }));
         } catch (error) {
             console.error('Error fetching comments:', error.message);
         }
@@ -149,66 +130,87 @@ const BlogsPage = () => {
                 throw new Error(`Error commenting on post: ${error.error}`);
             }
             const data = await response.json();
-            setComments(prevComments => [data, ...prevComments]);
+            setCommentsMap(prevCommentsMap => ({
+                ...prevCommentsMap,
+                [postId]: [data, ...prevCommentsMap[postId]]
+            }));
             console.log('Comment posted:', data);
         } catch (error) {
             console.error('Error commenting on post:', error.message);
         }
     };
 
+    const handleSearch = useCallback(() => {
+        // Filter posts based on search term
+        const filtered = posts.filter(post =>
+            post.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredPosts(filtered);
+    }, [posts, searchTerm]);
+
+    useEffect(() => {
+        handleSearch();
+    }, [handleSearch]);
+
     return (
         <div className="blogs-container">
-            <ArrowHeader title="Forums" />
-            <div className="forum-list">
-                {forums.map(forum => (
-                    <div key={forum.forum_id} className="forum" onClick={() => setSelectedForum(forum)}>
-                        <h2>{forum.name}</h2>
-                        <p>{forum.description}</p>
+            <ArrowHeader title="Blogs" />
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search posts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button onClick={handleSearch}>
+                    <i className="fa fa-search"></i>
+                </button>
+            </div>
+            <div className="posts-container">
+                {filteredPosts.map(post => (
+                    <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
+                        <div className='image-blog'>
+                            <img src={post.image_url} alt={post.title} className="post-image" />
+                        </div>
+                        <div className='content-blog'>
+                            <h2>{post.title}</h2>
+                            <h3></h3>
+                            <p>{post.content}</p>
+                        </div>
+                        <div className="actions">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleLike(post.post_id, 1); // Replace 1 with the actual userId
+                                }}
+                                disabled={likedPosts.has(post.post_id)}
+                            >
+                                {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleComment(post.post_id, 1, 'Great post!'); // Replace 1 and 'Great post!' with actual userId and comment
+                                }}
+                            >
+                                Comment ({commentsMap[post.post_id] ? commentsMap[post.post_id].length : 0})
+                            </button>
+                        </div>
+                        {selectedPost && selectedPost.post_id === post.post_id && commentsMap[post.post_id] && (
+                            <div className="comments-container">
+                                <h3>Comments:</h3>
+                                <ul>
+                                    {commentsMap[post.post_id].map(comment => (
+                                        <li key={comment.comment_id}>
+                                            <strong>{comment.username}</strong>: {comment.content}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
-            {selectedForum && (
-                <div className="posts-container">
-                    <ArrowHeader title={`Posts in ${selectedForum.name}`} />
-                    {posts.map(post => (
-                        <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
-                            <h2>{post.title}</h2>
-                            <p>{post.content}</p>
-                            <div className="actions">
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleLike(post.post_id, 1); // Replace 1 with the actual userId
-                                    }} 
-                                    disabled={likedPosts.has(post.post_id)}
-                                >
-                                    {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
-                                </button>
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleComment(post.post_id, 1, 'Great post!'); // Replace 1 and 'Great post!' with actual userId and comment
-                                    }}
-                                >
-                                    Comment ({comments.length})
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                    {selectedPost && (
-                        <div className="comments-container">
-                            <ArrowHeader title={`Comments on ${selectedPost.title}`} />
-                            <ul>
-                                {comments.map(comment => (
-                                    <li key={comment.comment_id}>
-                                        <strong>{comment.username}</strong>: {comment.content}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            )}
         </div>
     );
 };

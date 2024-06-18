@@ -65,6 +65,7 @@
     flex-direction: column;
     justify-content: center;
     flex: 1;
+    text-align: left;
 }
 
 .workshop-info h2 {
