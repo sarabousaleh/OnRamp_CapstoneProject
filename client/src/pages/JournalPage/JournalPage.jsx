@@ -29,7 +29,6 @@ const JournalPage = () => {
     const handleSaveEntry = async () => {
         try {
             const response = await axios.post('http://localhost:5000/journal_entries', {
-                date: new Date().toISOString().split('T')[0],
                 content: newEntry
             }, { withCredentials: true });
             setEntries([...entries, response.data]);
@@ -70,6 +69,11 @@ const JournalPage = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
     return (
         <>
             <ArrowHeader title="My Journal" />
@@ -101,7 +105,7 @@ const JournalPage = () => {
                             onClick={() => toggleExpandEntry(entry.id)}
                         >
                             <div className="entry-header">
-                                <p className="entry-date">{new Date(entry.date).toLocaleDateString()}</p>
+                                <p className="entry-date">{formatDate(entry.created_at)}</p>
                                 <div className="entry-actions">
                                     <FontAwesomeIcon 
                                         icon={faEdit} 

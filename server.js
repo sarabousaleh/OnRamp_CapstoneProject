@@ -388,13 +388,20 @@ app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
 // Modify the existing posts route to fetch all posts
 app.get('/posts', async (req, res) => {
     try {
-        const posts = await pool.query('SELECT * FROM posts');
+        const query = `
+            SELECT posts.*, therapists.name AS therapist_name
+            FROM posts
+            JOIN therapists ON posts.therapist_id = therapists.therapist_id
+        `;
+        const posts = await pool.query(query);
         res.json(posts.rows);
     } catch (err) {
         console.error('Error fetching posts:', err.message);
         res.status(500).json({ error: 'Server error while fetching posts' });
     }
 });
+
+
 
 // Add a new endpoint for searching posts by title
 app.get('/search-posts', async (req, res) => {
@@ -472,7 +479,7 @@ app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
 app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [id, req.user.username]);
+        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, req.user.username]);
         res.json({ liked: like.rows.length > 0 });
     } catch (err) {
         console.error('Server error:', err);
@@ -505,7 +512,6 @@ app.post('/posts/:id/like', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
 
 app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
     try {

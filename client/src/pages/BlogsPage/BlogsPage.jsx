@@ -11,11 +11,11 @@ const BlogsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [newComment, setNewComment] = useState({});
-    const [currentUser, setCurrentUser] = useState(null); // Add currentUser state
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
         fetchPosts();
-        fetchCurrentUser(); // Fetch the current user
+        fetchCurrentUser();
     }, []);
 
     const fetchPosts = async () => {
@@ -30,7 +30,7 @@ const BlogsPage = () => {
             }
             const data = await response.json();
             setPosts(data);
-            setFilteredPosts(data); // Initially show all posts
+            setFilteredPosts(data);
         } catch (error) {
             console.error('Error fetching posts:', error.message);
         }
@@ -116,35 +116,42 @@ const BlogsPage = () => {
 
     const handleLike = async (postId) => {
         try {
+            const isLiked = likedPosts.has(postId);
             const response = await fetch(`http://localhost:5000/posts/${postId}/like`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status: likedPosts.has(postId) ? false : true }), // Toggle like status
+                body: JSON.stringify({ status: !isLiked }), // Toggle like status
             });
             if (!response.ok) {
                 throw new Error(`Error liking post: ${response.statusText}`);
             }
+
             // Update likes state locally after successful like
             setLikes(prevLikes => ({
                 ...prevLikes,
-                [postId]: (prevLikes[postId] || 0) + (likedPosts.has(postId) ? +1 : 1) // Increment or decrement based on toggle
+                [postId]: prevLikes[postId] + (isLiked ? -1 : 1) // Increment or decrement based on toggle
             }));
+
             // Toggle likedPosts Set for UI update
-            if (likedPosts.has(postId)) {
-                likedPosts.delete(postId);
-            } else {
-                likedPosts.add(postId);
-            }
+            setLikedPosts(prev => {
+                const newLikedPosts = new Set(prev);
+                if (isLiked) {
+                    newLikedPosts.delete(postId);
+                } else {
+                    newLikedPosts.add(postId);
+                }
+                return newLikedPosts;
+            });
+
             console.log('Post liked successfully');
         } catch (error) {
             console.error('Error liking post:', error.message);
         }
     };
-    
-    
+
     const handleComment = async (postId, content) => {
         try {
             const response = await fetch(`http://localhost:5000/posts/${postId}/comment`, {
@@ -192,7 +199,6 @@ const BlogsPage = () => {
             console.error('Error deleting comment:', error.message);
         }
     };
-    
 
     const handleNewCommentChange = (postId, content) => {
         setNewComment(prev => ({
@@ -247,9 +253,9 @@ const BlogsPage = () => {
                         </div>
                         <div className='content-blog'>
                             <h2>{post.title}</h2>
-                            <h3>{post.username}</h3> {/* Add this line */}
+                            <h3>{post.therapist_name}</h3>
+                            <h3>{post.username}</h3>
                             <p>{post.content}</p>
-
                         </div>
                         <div className="actions">
                             <button
@@ -280,7 +286,7 @@ const BlogsPage = () => {
                                 </button>
                             </div>
                         </div>
-                        
+
                         {selectedPost && selectedPost.post_id === post.post_id && (
                             <div className="comments-container">
                                 <h3>Comments:</h3>
@@ -290,15 +296,14 @@ const BlogsPage = () => {
                                             <strong>{comment.username}</strong>: {comment.content}
                                             {currentUser && comment.user_id === currentUser.user_id && (
                                                 <button
-                                                className="delete-comment-button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteComment(post.post_id, comment.comment_id);
-                                                }}
-                                            >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                            
+                                                    className="delete-comment-button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteComment(post.post_id, comment.comment_id);
+                                                    }}
+                                                >
+                                                    <i className="fa fa-trash"></i>
+                                                </button>
                                             )}
                                         </li>
                                     ))}
