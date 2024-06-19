@@ -1,0 +1,41 @@
+.therapist-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 20px;
+    margin: 20px;
+}
+
+.therapist-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #eaceb4;
+    color: #bb5a5a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #eaceb4;
+    align-items: center;
+}
+
+.therapist-card img {
+    width: 60%;
+    height: 60%; /* Ensure the image takes up full width and height of its container */
+    object-fit: cover; /* Crop the image to cover the entire container */
+    border-radius: 8px;
+}
+
+.therapist-info {
+    margin-top: 10px;
+}
+
+.therapist-info h2 {
+    margin: 0;
+    color: #bb5a5a;
+    text-align: center;
+    font-style: italic;
+}
+
+.therapist-info p {
+    margin: 5px 0 0;
+    font-size: 15px;
+    color:rgb(99, 35, 35);
+}

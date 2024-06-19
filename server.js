@@ -313,10 +313,10 @@ app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
 // Journal routes
 app.post('/journal_entries', authenticateToken, async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { content } = req.body;
         const newJournalEntry = await pool.query(
-            'INSERT INTO journal_entries (username, title, content) VALUES ($1, $2, $3) RETURNING *',
-            [req.user.username, title, content]
+            'INSERT INTO journal_entries (username, content, created_at) VALUES ($1, $2, NOW()) RETURNING *',
+            [req.user.username, content]
         );
         res.json(newJournalEntry.rows[0]);
     } catch (err) {
@@ -324,6 +324,7 @@ app.post('/journal_entries', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 app.get('/journal_entries', authenticateToken, async (req, res) => {
     try {
@@ -413,12 +414,27 @@ app.get('/search-posts', async (req, res) => {
     }
 });
 
+// Blog routes
+app.get('/posts', async (req, res) => {
+    try {
+        const posts = await pool.query('SELECT * FROM posts ORDER BY created_at DESC');
+        res.json(posts.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
 
-// Modify the comments, likes, liked, and like routes to use /posts/:id format
 app.get('/posts/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
-        const comments = await pool.query('SELECT * FROM comments WHERE post_id = $1', [id]);
+        const comments = await pool.query(
+            `SELECT c.*, u.username FROM comments c
+             JOIN users u ON c.user_id = u.user_id
+             WHERE c.post_id = $1
+             ORDER BY c.created_at DESC`,
+            [id]
+        );
         res.json(comments.rows);
     } catch (err) {
         console.error('Error fetching comments:', err.message);
@@ -426,53 +442,101 @@ app.get('/posts/:id/comments', async (req, res) => {
     }
 });
 
-app.get('/posts/:id/likes', async (req, res) => {
+// Add this route to handle DELETE requests for comments
+app.delete('/posts/:postId/comments/:commentId', authenticateToken, async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        // Ensure the comment belongs to the authenticated user (if required)
+
+        // Perform deletion in the database
+        await pool.query('DELETE FROM comments WHERE comment_id = $1 AND post_id = $2', [commentId, postId]);
+        
+        res.json({ message: 'Comment deleted successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [id]);
         res.json(likes.rows);
     } catch (err) {
-        console.error('Error fetching likes:', err.message);
-        res.status(500).json({ error: 'Server error while fetching likes' });
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
     }
 });
 
-app.get('/posts/:id/liked', async (req, res) => {
+app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId } = req.query;
-        const liked = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, userId]);
-
-        res.json({ liked: liked.rows.length > 0 });
+        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [id, req.user.username]);
+        res.json({ liked: like.rows.length > 0 });
     } catch (err) {
-        console.error('Error checking if liked:', err.message);
-        res.status(500).json({ error: 'Server error while checking if liked' });
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
     }
 });
 
-app.post('/posts/:id/like', async (req, res) => {
+// Server-side endpoint
+app.post('/posts/:id/like', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
     try {
-        const { id } = req.params;
-        const { userId } = req.body;
-        await pool.query('INSERT INTO likes (post_id, user_id) VALUES ($1, $2)', [id, userId]);
-        res.json({ message: 'Post liked' });
+        if (status) {
+            // If status is true, insert a new like
+            await pool.query(
+                'INSERT INTO likes (post_id, user_id, status, created_at) VALUES ($1, $2, $3, NOW())',
+                [id, req.user.user_id, status]
+            );
+        } else {
+            // If status is false, delete the existing like
+            await pool.query(
+                'DELETE FROM likes WHERE post_id = $1 AND user_id = $2',
+                [id, req.user.user_id]
+            );
+        }
+        res.json({ message: 'Like updated successfully' });
     } catch (err) {
-        console.error('Error liking post:', err.message);
-        res.status(500).json({ error: 'Server error while liking post' });
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
     }
 });
 
-app.post('/posts/:id/comment', async (req, res) => {
+
+app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId, content } = req.body;
-        const newComment = await pool.query('INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *', [id, userId, content]);
+        const { user_id, username } = req.user;
+        const { content } = req.body;
+
+        // Insert comment into the database
+        const newComment = await pool.query(
+            'INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *',
+            [id, user_id, content]
+        );
+
         res.json(newComment.rows[0]);
     } catch (err) {
-        console.error('Error commenting on post:', err.message);
-        res.status(500).json({ error: 'Server error while commenting on post' });
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
     }
 });
+
+// Endpoint to fetch all therapists
+app.get('/therapists', async (req, res) => {
+    try {
+        const therapists = await pool.query('SELECT * FROM therapists');
+        res.json(therapists.rows);
+    } catch (err) {
+        console.error('Error fetching therapists:', err.message);
+        res.status(500).json({ error: 'Server error while fetching therapists' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
