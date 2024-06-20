@@ -253,7 +253,7 @@ const BlogsPage = () => {
                         </div>
                         <div className='content-blog'>
                             <h2>{post.title}</h2>
-                            <h3>{post.therapist_name}</h3>
+                            <h3>By Therapist: {post.therapist_name}</h3>
                             <h3>{post.username}</h3>
                             <p>{post.content}</p>
                         </div>

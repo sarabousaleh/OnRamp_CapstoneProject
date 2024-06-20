@@ -28,9 +28,7 @@
   border: 1px solid #bb5a5a;
 }
 
-.content
-
--blog {
+.content-blog {
   text-align: justify;
 }
 
@@ -38,6 +36,11 @@
   text-align: center;
   color: #e79e85;
   font-style: oblique; 
+}
+
+.content-blog h3{
+  text-align: center;
+  font-size: medium;
 }
 
 .actions {
