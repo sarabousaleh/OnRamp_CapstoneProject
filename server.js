@@ -532,16 +532,62 @@ app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
     }
 });
 
-// Endpoint to fetch all therapists
+// Endpoint to fetch all therapists with their availability
 app.get('/therapists', async (req, res) => {
     try {
         const therapists = await pool.query('SELECT * FROM therapists');
-        res.json(therapists.rows);
+        const availability = await pool.query('SELECT * FROM therapist_availability');
+
+        const therapistData = therapists.rows.map(therapist => {
+            const therapistAvailability = availability.rows.filter(avail => avail.therapist_id === therapist.therapist_id);
+            return {
+                ...therapist,
+                availability: therapistAvailability
+            };
+        });
+
+        res.json(therapistData);
     } catch (err) {
         console.error('Error fetching therapists:', err.message);
         res.status(500).json({ error: 'Server error while fetching therapists' });
     }
 });
+// Endpoint to fetch availability for a specific therapist
+app.get('/therapist-availability/:therapist_id', async (req, res) => {
+    const { therapist_id } = req.params;
+    try {
+        const availability = await pool.query('SELECT * FROM therapist_availability WHERE therapist_id = $1', [therapist_id]);
+        res.json(availability.rows);
+    } catch (err) {
+        console.error('Error fetching therapist availability:', err.message);
+        res.status(500).json({ error: 'Server error while fetching therapist availability' });
+    }
+});
+
+app.post('/book-appointment', async (req, res) => {
+    const { therapist_id, appointment_time, additional_info } = req.body;
+
+    try {
+        // Validate input if necessary
+
+        // Insert the appointment into therapist_sessions table
+        const query = `
+            INSERT INTO therapist_sessions (therapist_id, appointment_time, additional_info)
+            VALUES ($1, $2, $3)
+            RETURNING session_id`;
+        
+        const values = [therapist_id, appointment_time, additional_info];
+        const result = await pool.query(query, values);
+        
+        const session_id = result.rows[0].session_id;
+        
+        res.status(201).json({ message: 'Appointment booked successfully', session_id });
+    } catch (error) {
+        console.error('Error booking appointment:', error.message);
+        res.status(500).json({ error: 'Failed to book appointment' });
+    }
+});
+
 
 
 app.listen(PORT, () => {

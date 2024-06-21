@@ -7,7 +7,9 @@ import './TherapyPage.css';
 const TherapyPage = () => {
     const [therapists, setTherapists] = useState([]);
     const [selectedTherapist, setSelectedTherapist] = useState('');
+    const [availableTimes, setAvailableTimes] = useState([]);
     const [appointmentTime, setAppointmentTime] = useState('');
+    const [additionalInfo, setAdditionalInfo] = useState('');
     const [message, setMessage] = useState('');
 
     useEffect(() => {
@@ -26,6 +28,23 @@ const TherapyPage = () => {
         fetchData();
     }, []);
 
+    const handleTherapistChange = async (e) => {
+        const selectedId = e.target.value;
+        setSelectedTherapist(selectedId);
+
+        try {
+            const response = await fetch(`http://localhost:5000/therapist-availability/${selectedId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch therapist availability');
+            }
+            const availabilityData = await response.json();
+            setAvailableTimes(availabilityData);
+        } catch (error) {
+            console.error('Error fetching therapist availability:', error.message);
+            setAvailableTimes([]);
+        }
+    };
+
     const handleBooking = async (event) => {
         event.preventDefault();
         try {
@@ -35,6 +54,7 @@ const TherapyPage = () => {
                 body: JSON.stringify({
                     therapist_id: selectedTherapist,
                     appointment_time: appointmentTime,
+                    additional_info: additionalInfo,
                 }),
             });
             if (!response.ok) {
@@ -46,6 +66,11 @@ const TherapyPage = () => {
             console.error('Error booking appointment:', error.message);
             setMessage('Failed to book appointment');
         }
+    };
+
+    const formatDate = (dateString) => {
+        const options = { month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
     return (
@@ -60,7 +85,7 @@ const TherapyPage = () => {
                             <select
                                 id="therapist"
                                 value={selectedTherapist}
-                                onChange={(e) => setSelectedTherapist(e.target.value)}
+                                onChange={handleTherapistChange}
                                 required
                             >
                                 <option value="">--Select--</option>
@@ -72,13 +97,28 @@ const TherapyPage = () => {
                             </select>
                         </div>
                         <div className="form-group">
-                            <label htmlFor="appointment-time">Select Time:</label>
-                            <input
-                                type="datetime-local"
+                            <label htmlFor="appointment-time">Select Available Time:</label>
+                            <select
                                 id="appointment-time"
                                 value={appointmentTime}
                                 onChange={(e) => setAppointmentTime(e.target.value)}
                                 required
+                            >
+                                <option value="">--Select--</option>
+                                {availableTimes.map((time, index) => (
+                                    <option key={index} value={`${time.availability_date} ${time.start_time}-${time.end_time}`}>
+                                        {`${time.day_of_week} ${formatDate(time.availability_date)} ${time.start_time} - ${time.end_time} (${time.is_online ? 'Online' : 'In-person'})`}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="additional-info">Additional Information:</label>
+                            <textarea
+                                id="additional-info"
+                                value={additionalInfo}
+                                onChange={(e) => setAdditionalInfo(e.target.value)}
+                                placeholder="Enter any additional information here"
                             />
                         </div>
                         <button type="submit">Book Appointment</button>

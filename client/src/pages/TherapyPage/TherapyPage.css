@@ -86,7 +86,7 @@
 }
 
 .booking-form-container button {
-    width: 100%;
+    width: 80%;
     padding: 10px;
     background-color: #bb5a5a;
     color: white;
@@ -103,4 +103,10 @@
     margin-top: 20px;
     color: #bb5a5a;
     text-align: center;
+}
+
+.form-group textarea{
+    border-radius: 4px;
+    border: 1px solid #bb5a5a;
+    color: #6b2a2a;
 }
