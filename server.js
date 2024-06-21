@@ -465,42 +465,21 @@ app.delete('/posts/:postId/comments/:commentId', authenticateToken, async (req, 
     }
 });
 
-app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [id]);
-        res.json(likes.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, req.user.username]);
-        res.json({ liked: like.rows.length > 0 });
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
-// Server-side endpoint
 app.post('/posts/:id/like', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
     try {
         if (status) {
-            // If status is true, insert a new like
             await pool.query(
-                'INSERT INTO likes (post_id, user_id, status, created_at) VALUES ($1, $2, $3, NOW())',
-                [id, req.user.user_id, status]
+                'INSERT INTO likes (post_id, user_id, created_at) VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING',
+                [id, req.user.user_id]
+            );
+            await pool.query(
+                'DELETE FROM dislikes WHERE post_id = $1 AND user_id = $2',
+                [id, req.user.user_id]
             );
         } else {
-            // If status is false, delete the existing like
             await pool.query(
                 'DELETE FROM likes WHERE post_id = $1 AND user_id = $2',
                 [id, req.user.user_id]
@@ -512,6 +491,61 @@ app.post('/posts/:id/like', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+
+
+app.post('/posts/:id/dislike', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+        if (status) {
+            await pool.query(
+                'INSERT INTO dislikes (post_id, user_id, created_at) VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING',
+                [id, req.user.user_id]
+            );
+            await pool.query(
+                'DELETE FROM likes WHERE post_id = $1 AND user_id = $2',
+                [id, req.user.user_id]
+            );
+        } else {
+            await pool.query(
+                'DELETE FROM dislikes WHERE post_id = $1 AND user_id = $2',
+                [id, req.user.user_id]
+            );
+        }
+        res.json({ message: 'Dislike updated successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+app.get('/posts/:id/dislikes', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const dislikes = await pool.query('SELECT * FROM dislikes WHERE post_id = $1', [id]);
+        res.json(dislikes.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/posts/:id/disliked', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const dislike = await pool.query('SELECT * FROM dislikes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
+        res.json({ disliked: dislike.rows.length > 0 });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
     try {

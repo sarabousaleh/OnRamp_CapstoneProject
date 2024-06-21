@@ -59,6 +59,18 @@
   float: left;
 }
 
+.actions .dislike-button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background-color: #bb5a5a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  float: left;
+}
+
 .actions .like-button:hover {
   background-color: #7f2f2f;
 }

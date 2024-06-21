@@ -12,11 +12,59 @@ const BlogsPage = () => {
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [newComment, setNewComment] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
+    const [dislikes, setDislikes] = useState({});
+    const [dislikedPosts, setDislikedPosts] = useState(new Set());
+    
 
     useEffect(() => {
         fetchPosts();
         fetchCurrentUser();
     }, []);
+    
+    useEffect(() => {
+    if (selectedPost) {
+        fetchDislikes(selectedPost.post_id);
+        checkIfDisliked(selectedPost.post_id);
+    }
+}, [selectedPost]);
+
+
+const fetchDislikes = async (postId) => {
+    try {
+        const response = await fetch(`http://localhost:5000/posts/${postId}/dislikes`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            throw new Error(`Error fetching dislikes: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setDislikes(prevDislikes => ({ ...prevDislikes, [postId]: data.length }));
+    } catch (error) {
+        console.error('Error fetching dislikes:', error.message);
+    }
+};
+
+const checkIfDisliked = async (postId) => {
+    try {
+        const response = await fetch(`http://localhost:5000/posts/${postId}/disliked`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            throw new Error(`Error checking if disliked: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.disliked) {
+            setDislikedPosts(prev => new Set(prev.add(postId)));
+        }
+    } catch (error) {
+        console.error('Error checking if disliked:', error.message);
+    }
+};
+
 
     const fetchPosts = async () => {
         try {
@@ -128,13 +176,13 @@ const BlogsPage = () => {
             if (!response.ok) {
                 throw new Error(`Error liking post: ${response.statusText}`);
             }
-
+    
             // Update likes state locally after successful like
             setLikes(prevLikes => ({
                 ...prevLikes,
                 [postId]: prevLikes[postId] + (isLiked ? -1 : 1) // Increment or decrement based on toggle
             }));
-
+    
             // Toggle likedPosts Set for UI update
             setLikedPosts(prev => {
                 const newLikedPosts = new Set(prev);
@@ -142,15 +190,66 @@ const BlogsPage = () => {
                     newLikedPosts.delete(postId);
                 } else {
                     newLikedPosts.add(postId);
+                    // Remove from dislikedPosts if it was disliked
+                    setDislikedPosts(prev => {
+                        const newDislikedPosts = new Set(prev);
+                        newDislikedPosts.delete(postId);
+                        return newDislikedPosts;
+                    });
                 }
                 return newLikedPosts;
             });
-
+    
             console.log('Post liked successfully');
         } catch (error) {
             console.error('Error liking post:', error.message);
         }
     };
+    
+    const handleDislike = async (postId) => {
+        try {
+            const isDisliked = dislikedPosts.has(postId);
+            const response = await fetch(`http://localhost:5000/posts/${postId}/dislike`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: !isDisliked }), // Toggle dislike status
+            });
+            if (!response.ok) {
+                throw new Error(`Error disliking post: ${response.statusText}`);
+            }
+    
+            // Update dislikes state locally after successful dislike
+            setDislikes(prevDislikes => ({
+                ...prevDislikes,
+                [postId]: prevDislikes[postId] + (isDisliked ? -1 : 1) // Increment or decrement based on toggle
+            }));
+    
+            // Toggle dislikedPosts Set for UI update
+            setDislikedPosts(prev => {
+                const newDislikedPosts = new Set(prev);
+                if (isDisliked) {
+                    newDislikedPosts.delete(postId);
+                } else {
+                    newDislikedPosts.add(postId);
+                    // Remove from likedPosts if it was liked
+                    setLikedPosts(prev => {
+                        const newLikedPosts = new Set(prev);
+                        newLikedPosts.delete(postId);
+                        return newLikedPosts;
+                    });
+                }
+                return newDislikedPosts;
+            });
+    
+            console.log('Post disliked successfully');
+        } catch (error) {
+            console.error('Error disliking post:', error.message);
+        }
+    };
+    
 
     const handleComment = async (postId, content) => {
         try {
@@ -217,6 +316,7 @@ const BlogsPage = () => {
             }));
         }
     };
+    
 
     const handleSearch = useCallback(() => {
         // Filter posts based on search term
@@ -246,72 +346,83 @@ const BlogsPage = () => {
             </div>
             <p className='p-blogs'>Press on each Blog to expand the comments.</p>
             <div className="posts-container">
-                {filteredPosts.map(post => (
-                    <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
-                        <div className='image-blog'>
-                            <img src={post.image_url} alt={post.title} className="post-image" />
-                        </div>
-                        <div className='content-blog'>
-                            <h2>{post.title}</h2>
-                            <h3>By Therapist: {post.therapist_name}</h3>
-                            <h3>{post.username}</h3>
-                            <p>{post.content}</p>
-                        </div>
-                        <div className="actions">
-                            <button
-                                className='like-button'
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleLike(post.post_id);
-                                }}
-                                disabled={likedPosts.has(post.post_id)}
-                            >
-                                {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
-                            </button>
-                            <div className="comment-input-container">
-                                <input
-                                    type="text"
-                                    placeholder="Write a comment..."
-                                    value={newComment[post.post_id] || ''}
-                                    onChange={(e) => handleNewCommentChange(post.post_id, e.target.value)}
-                                />
+            {filteredPosts.map(post => (
+    <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
+        <div className='image-blog'>
+            <img src={post.image_url} alt={post.title} className="post-image" />
+        </div>
+        <div className='content-blog'>
+            <h2>{post.title}</h2>
+            <h3>By Therapist: {post.therapist_name}</h3>
+            <h3>{post.username}</h3>
+            <p>{post.content}</p>
+        </div>
+        <div className="actions">
+            <button
+                className='like-button'
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike(post.post_id);
+                }}
+                disabled={likedPosts.has(post.post_id)}
+            >
+                {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
+            </button>
+            <button
+                className='dislike-button'
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleDislike(post.post_id);
+                }}
+                disabled={dislikedPosts.has(post.post_id)}
+            >
+                {dislikedPosts.has(post.post_id) ? `Disliked (${dislikes[post.post_id] || 0})` : `Dislike (${dislikes[post.post_id] || 0})`}
+            </button>
+            <div className="comment-input-container">
+                <input
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={newComment[post.post_id] || ''}
+                    onChange={(e) => handleNewCommentChange(post.post_id, e.target.value)}
+                />
+                <button
+                    className='comment-button'
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleNewCommentSubmit(post.post_id);
+                    }}
+                >
+                    <i className="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        {selectedPost && selectedPost.post_id === post.post_id && (
+            <div className="comments-container">
+                <h3>Comments:</h3>
+                <ul>
+                    {commentsMap[post.post_id]?.map((comment) => (
+                        <li key={comment.comment_id}>
+                            <strong>{comment.username}</strong>: {comment.content}
+                            {currentUser && comment.user_id === currentUser.user_id && (
                                 <button
-                                    className='comment-button'
+                                    className="delete-comment-button"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleNewCommentSubmit(post.post_id);
+                                        handleDeleteComment(post.post_id, comment.comment_id);
                                     }}
                                 >
-                                    <i className="fa fa-arrow-right"></i>
+                                    <i className="fa fa-trash"></i>
                                 </button>
-                            </div>
-                        </div>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )}
+    </div>
+))}
 
-                        {selectedPost && selectedPost.post_id === post.post_id && (
-                            <div className="comments-container">
-                                <h3>Comments:</h3>
-                                <ul>
-                                    {commentsMap[post.post_id]?.map((comment) => (
-                                        <li key={comment.comment_id}>
-                                            <strong>{comment.username}</strong>: {comment.content}
-                                            {currentUser && comment.user_id === currentUser.user_id && (
-                                                <button
-                                                    className="delete-comment-button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteComment(post.post_id, comment.comment_id);
-                                                    }}
-                                                >
-                                                    <i className="fa fa-trash"></i>
-                                                </button>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
-                ))}
             </div>
         </div>
     );
