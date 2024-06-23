@@ -180,7 +180,7 @@ const checkIfDisliked = async (postId) => {
             // Update likes state locally after successful like
             setLikes(prevLikes => ({
                 ...prevLikes,
-                [postId]: prevLikes[postId] + (isLiked ? -1 : 1) // Increment or decrement based on toggle
+                [postId]: isLiked ? prevLikes[postId] - 1 : prevLikes[postId] + 1 // Increment or decrement based on toggle
             }));
     
             // Toggle likedPosts Set for UI update
@@ -347,55 +347,55 @@ const checkIfDisliked = async (postId) => {
             <p className='p-blogs'>Press on each Blog to expand the comments.</p>
             <div className="posts-container">
             {filteredPosts.map(post => (
-    <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
-        <div className='image-blog'>
-            <img src={post.image_url} alt={post.title} className="post-image" />
-        </div>
-        <div className='content-blog'>
-            <h2>{post.title}</h2>
-            <h3>By Therapist: {post.therapist_name}</h3>
-            <h3>{post.username}</h3>
-            <p>{post.content}</p>
-        </div>
-        <div className="actions">
-            <button
-                className='like-button'
-                onClick={(e) => {
-                    e.stopPropagation();
-                    handleLike(post.post_id);
-                }}
-                disabled={likedPosts.has(post.post_id)}
-            >
-                {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
-            </button>
-            <button
-                className='dislike-button'
-                onClick={(e) => {
-                    e.stopPropagation();
-                    handleDislike(post.post_id);
-                }}
-                disabled={dislikedPosts.has(post.post_id)}
-            >
-                {dislikedPosts.has(post.post_id) ? `Disliked (${dislikes[post.post_id] || 0})` : `Dislike (${dislikes[post.post_id] || 0})`}
-            </button>
-            <div className="comment-input-container">
-                <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={newComment[post.post_id] || ''}
-                    onChange={(e) => handleNewCommentChange(post.post_id, e.target.value)}
-                />
-                <button
-                    className='comment-button'
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleNewCommentSubmit(post.post_id);
-                    }}
-                >
-                    <i className="fa fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
+            <div key={post.post_id} className="post" onClick={() => setSelectedPost(post)}>
+                <div className='image-blog'>
+                    <img src={post.image_url} alt={post.title} className="post-image" />
+                </div>
+                <div className='content-blog'>
+                    <h2>{post.title}</h2>
+                    <h3>By Therapist: {post.therapist_name}</h3>
+                    <h3>{post.username}</h3>
+                    <p>{post.content}</p>
+                </div>
+                <div className="actions">
+                    <button
+                        className='like-button'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleLike(post.post_id);
+                        }}
+                        disabled={likedPosts.has(post.post_id)}
+                    >
+                        {likedPosts.has(post.post_id) ? `Liked (${likes[post.post_id] || 0})` : `Like (${likes[post.post_id] || 0})`}
+                    </button>
+                    <button
+                        className='dislike-button'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleDislike(post.post_id);
+                        }}
+                        disabled={dislikedPosts.has(post.post_id)}
+                    >
+                        {dislikedPosts.has(post.post_id) ? `Disliked (${dislikes[post.post_id] || 0})` : `Dislike (${dislikes[post.post_id] || 0})`}
+                    </button>
+                    <div className="comment-input-container">
+                        <input
+                            type="text"
+                            placeholder="Write a comment..."
+                            value={newComment[post.post_id] || ''}
+                            onChange={(e) => handleNewCommentChange(post.post_id, e.target.value)}
+                        />
+                        <button
+                            className='comment-button'
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleNewCommentSubmit(post.post_id);
+                            }}
+                        >
+                            <i className="fa fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
 
         {selectedPost && selectedPost.post_id === post.post_id && (
             <div className="comments-container">

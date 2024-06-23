@@ -571,9 +571,22 @@ app.get('/therapists', async (req, res) => {
     try {
         const therapists = await pool.query('SELECT * FROM therapists');
         const availability = await pool.query('SELECT * FROM therapist_availability');
+        const bookedSessions = await pool.query('SELECT therapist_id, appointment_time FROM therapist_sessions');
+
+        const bookedTimes = bookedSessions.rows.map(session => ({
+            therapist_id: session.therapist_id,
+            appointment_time: session.appointment_time
+        }));
 
         const therapistData = therapists.rows.map(therapist => {
-            const therapistAvailability = availability.rows.filter(avail => avail.therapist_id === therapist.therapist_id);
+            const therapistAvailability = availability.rows.filter(avail => {
+                const availableTime = `${avail.availability_date} ${avail.start_time}-${avail.end_time}`;
+                return !bookedTimes.some(session => 
+                    session.therapist_id === therapist.therapist_id && 
+                    session.appointment_time === availableTime
+                );
+            });
+
             return {
                 ...therapist,
                 availability: therapistAvailability
@@ -586,17 +599,28 @@ app.get('/therapists', async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching therapists' });
     }
 });
+
 // Endpoint to fetch availability for a specific therapist
 app.get('/therapist-availability/:therapist_id', async (req, res) => {
     const { therapist_id } = req.params;
     try {
         const availability = await pool.query('SELECT * FROM therapist_availability WHERE therapist_id = $1', [therapist_id]);
-        res.json(availability.rows);
+        const bookedSessions = await pool.query('SELECT appointment_time FROM therapist_sessions WHERE therapist_id = $1', [therapist_id]);
+
+        const bookedTimes = bookedSessions.rows.map(session => session.appointment_time);
+
+        const filteredAvailability = availability.rows.filter(avail => {
+            const availableTime = `${avail.availability_date} ${avail.start_time}-${avail.end_time}`;
+            return !bookedTimes.includes(availableTime);
+        });
+
+        res.json(filteredAvailability);
     } catch (err) {
         console.error('Error fetching therapist availability:', err.message);
         res.status(500).json({ error: 'Server error while fetching therapist availability' });
     }
 });
+
 
 app.post('/book-appointment', async (req, res) => {
     const { therapist_id, appointment_time, additional_info } = req.body;
@@ -621,6 +645,27 @@ app.post('/book-appointment', async (req, res) => {
         res.status(500).json({ error: 'Failed to book appointment' });
     }
 });
+
+// Endpoint to fetch therapist sessions
+app.get('/therapist-sessions/:therapistId', async (req, res) => {
+    const { therapistId } = req.params;
+
+    try {
+        const therapistSessions = await pool.query(
+            `SELECT ts.session_id, ts.therapist_id, ts.appointment_time, ts.additional_info, ts.created_at, t.name as therapist_name 
+             FROM therapist_sessions ts
+             JOIN therapists t ON ts.therapist_id = t.therapist_id
+             WHERE ts.therapist_id = $1`,
+            [therapistId]
+        );
+
+        res.json(therapistSessions.rows);
+    } catch (err) {
+        console.error('Error fetching therapist sessions:', err.message);
+        res.status(500).json({ error: 'Server error while fetching therapist sessions' });
+    }
+});
+
 
 
 

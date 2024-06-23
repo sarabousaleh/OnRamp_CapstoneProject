@@ -12,7 +12,7 @@ function AccountPage() {
     gender: '',
     nationality: '',
     dob: '',
-    telephone_numbers: '',  // Ensure telephone number is included
+    telephone_numbers: '', 
     profileImage: '',
   });
   const [editedUserData, setEditedUserData] = useState({ ...userData });
@@ -126,21 +126,26 @@ function AccountPage() {
     <>
       <h1 className="h1-design">Your Account</h1>
       <div className="icons-container">
-        <Link to="/JournalPage">
+        <Link to="/MyJournal">
           <i className="fa fa-book"></i>
           <span>My Journal</span>
         </Link>
 
-        <Link to="/ToDoPage">
+        <Link to="/ToDoList">
           <i className="fa fa-list"></i>
           <span>My To Do List</span>
         </Link>
 
-        <Link to="/MyEvents_Workshops">
+        <Link to="/MyEvents&Workshops">
           <i className="fas fa-calendar-alt"></i>
           <span>My Events & Workshops</span>
         </Link>
 
+        <Link to="/MyTherapySessions">
+          <i className="fa fa-heartbeat"></i>
+          <span>Therapy Sessions</span>
+        </Link>
+        
         <span className="logout-icon" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i> Log Out
         </span>

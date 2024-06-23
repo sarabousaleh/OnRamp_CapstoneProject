@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLaptopMedical, faClinicMedical } from "@fortawesome/free-solid-svg-icons";
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
@@ -11,6 +12,11 @@ const TherapyPage = () => {
     const [appointmentTime, setAppointmentTime] = useState('');
     const [additionalInfo, setAdditionalInfo] = useState('');
     const [message, setMessage] = useState('');
+    const [expandedTherapist, setExpandedTherapist] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalTherapist, setModalTherapist] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,16 +79,27 @@ const TherapyPage = () => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
+    const toggleModal = (therapist) => {
+        setModalTherapist(therapist);
+        setShowModal(!showModal);
+    };
+
     return (
         <div>
             <ArrowHeader title="Therapy Sessions" />
+            
             <div className="booking-container">
                 <div className="booking-form-container">
                     <h2>Book an Appointment</h2>
+                    <p>
+                        Before you book an appointment, please make sure to{' '}
+                        <Link to="/assessments">make the assessment</Link>. Its result will be sent to the therapist to help you more effectively!
+                    </p>
                     <form onSubmit={handleBooking}>
                         <div className="form-group">
                             <label htmlFor="therapist">Select Therapist:</label>
                             <select
+                                className="select-design"
                                 id="therapist"
                                 value={selectedTherapist}
                                 onChange={handleTherapistChange}
@@ -99,6 +116,7 @@ const TherapyPage = () => {
                         <div className="form-group">
                             <label htmlFor="appointment-time">Select Available Time:</label>
                             <select
+                                className="select-design"
                                 id="appointment-time"
                                 value={appointmentTime}
                                 onChange={(e) => setAppointmentTime(e.target.value)}
@@ -128,7 +146,11 @@ const TherapyPage = () => {
             </div>
             <div className="therapist-container">
                 {therapists.map(therapist => (
-                    <div className="therapist-card" key={therapist.therapist_id}>
+                    <div 
+                        className="therapist-card" 
+                        key={therapist.therapist_id} 
+                        onClick={() => toggleModal(therapist)}
+                    >
                         <img src={therapist.image_url} alt={therapist.name} />
                         <div className="therapist-info">
                             <h2><strong>{therapist.name}</strong></h2>
@@ -150,6 +172,57 @@ const TherapyPage = () => {
                     </div>
                 ))}
             </div>
+            
+            <div className="therapy-details">
+                <hr />
+                <h2>Types of Therapy You Might Need:</h2>
+                <p>Therapy encompasses a variety of approaches tailored to address different psychological and emotional needs individuals may face throughout their lives. Some common types include:</p>
+                <ul>
+                    <li><strong>Cognitive-Behavioral Therapy (CBT):</strong> Helps individuals identify and change negative thought patterns and behaviors.</li>
+                    <li><strong>Psychodynamic Therapy:</strong> Explores unconscious thoughts and emotions to understand current behaviors and relationships.</li>
+                    <li><strong>Family Therapy:</strong> Addresses conflicts and improves communication within families.</li>
+                    <li><strong>Art Therapy:</strong> Uses creative expression to explore emotions and promote healing.</li>
+                    <li><strong>Group Therapy:</strong> Provides support and feedback from peers dealing with similar issues.</li>
+                </ul>
+                <hr />
+                <h2>When and Why Therapy Is Beneficial?</h2>
+                <p>Therapy is beneficial in various situations:</p>
+                <ul>
+                    <li><strong>Managing Stress:</strong> Helps individuals cope with stressors in their personal or professional lives.</li>
+                    <li><strong>Grief and Trauma:</strong> Assists in processing loss or traumatic experiences, facilitating healing.</li>
+                    <li><strong>Life Transitions:</strong> Supports individuals adjusting to major life changes such as career shifts, marriage, or retirement.</li>
+                    <li><strong>Mental Health Disorders:</strong> Provides strategies to manage symptoms of depression, anxiety, OCD, and other disorders.</li>
+                    <li><strong>Improving Relationships:</strong> Enhances communication skills and fosters healthier interpersonal connections.</li>
+                </ul>
+                <hr />
+                <h2>Benefits of Therapy:</h2>
+                <p>Therapy offers numerous benefits:</p>
+                <ul>
+                    <li>Promotes self-awareness and personal growth.</li>
+                    <li>Empowers individuals to overcome obstacles and achieve goals.</li>
+                    <li>Enhances resilience and coping skills.</li>
+                    <li>Provides a safe space for emotional expression and validation.</li>
+                    <li>Improves overall mental well-being and quality of life.</li>
+                </ul>
+                <hr />
+            </div>
+            
+            {showModal && modalTherapist && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={toggleModal}>&times;</span>
+                        <img src={modalTherapist.image_url} alt={modalTherapist.name} />
+
+
+                        <h2>{modalTherapist.name}</h2>
+                        <p><strong>Specialization:</strong> {modalTherapist.specialization}</p>
+                        <p><strong>Location:</strong> {modalTherapist.location}</p>
+                        <p><strong>Online Therapy:</strong> {modalTherapist.virtual_available ? 'Available' : 'Not Available'}</p>
+                        <p><strong>In-person Therapy:</strong> {modalTherapist.in_person_available ? 'Available' : 'Not Available'}</p>
+                        <p><strong>About:</strong> {modalTherapist.about}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
