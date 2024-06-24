@@ -1,0 +1,29 @@
+/* Container for therapy sessions */
+.therapy-sessions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+/* Therapy session card */
+.therapy-session {
+    color: #6f2828;
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 300px;
+}
+
+/* Additional styling for specific elements inside therapy session card */
+.therapy-session p {
+    margin: 5px 0;
+}
+
+.therapy-session strong {
+    color: #bb5a5a;
+}
+

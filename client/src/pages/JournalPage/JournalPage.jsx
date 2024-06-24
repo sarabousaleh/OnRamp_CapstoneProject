@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import { useNavigate } from 'react-router-dom';
 import './JournalPage.css';
 
@@ -28,7 +29,6 @@ const JournalPage = () => {
     const handleSaveEntry = async () => {
         try {
             const response = await axios.post('http://localhost:5000/journal_entries', {
-                date: new Date().toISOString().split('T')[0],
                 content: newEntry
             }, { withCredentials: true });
             setEntries([...entries, response.data]);
@@ -69,14 +69,14 @@ const JournalPage = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
     return (
         <>
-            <div className="arrow-header">
-                <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                    <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: '36px', color:'#bb5a5a', marginRight: '10px' }} />
-                </button>
-                <h1 className="h1-design">My Journal</h1>
-            </div>
+            <ArrowHeader title="My Journal" />
             <p className="p-journal">
                 Journaling can help you make sense of how you're feeling about a certain person or situation that is troubling
                 or inspiring you. It can also help you understand your triggers. The process of writing down your thoughts as honestly
@@ -105,7 +105,7 @@ const JournalPage = () => {
                             onClick={() => toggleExpandEntry(entry.id)}
                         >
                             <div className="entry-header">
-                                <p className="entry-date">{new Date(entry.date).toLocaleDateString()}</p>
+                                <p className="entry-date">{formatDate(entry.created_at)}</p>
                                 <div className="entry-actions">
                                     <FontAwesomeIcon 
                                         icon={faEdit} 

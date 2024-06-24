@@ -49,12 +49,10 @@
 
 .entry-list-container {
     width: 98%;
-    display: flex;
-    flex-wrap: wrap;
 }
 
 .entry-item {
-    width: calc(50% - 20px); /* For desktop and tablet */
+    width: calc(50% - 20px); 
     padding: 10px;
     border: 1px solid #bb5a5a;
     border-radius: 5px;

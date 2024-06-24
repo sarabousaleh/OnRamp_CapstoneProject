@@ -17,6 +17,8 @@ import JournalPage from './pages/JournalPage/JournalPage';
 import SignInPage from './pages/SignInPage/SignInPage';
 import LogInPage from './pages/LogInPage/LogInPage';
 import MyEvents_Workshops from './pages/MyEvents_Workshops/MyEvents_Workshops';
+import MyTherapySessions from './pages/MyTherapySessions/MyTherapySessions';
+
 import axios from 'axios';
 
 function Layout({ children }) {
@@ -65,7 +67,7 @@ function App() {
           }
         />
         <Route
-          path="/BlogsPage"
+          path="/blogs"
           element={
             isLoggedIn ? (
               <Layout>
@@ -77,7 +79,7 @@ function App() {
           }
         />
         <Route
-          path="/EventsPage"
+          path="/workshops&events"
           element={
             isLoggedIn ? (
               <Layout>
@@ -89,7 +91,7 @@ function App() {
           }
         />
         <Route
-          path="/LibraryPage"
+          path="/library"
           element={
             isLoggedIn ? (
               <Layout>
@@ -101,7 +103,7 @@ function App() {
           }
         />
         <Route
-          path="/AssessmentsPage"
+          path="/assessments"
           element={
             isLoggedIn ? (
               <Layout>
@@ -113,7 +115,7 @@ function App() {
           }
         />
         <Route
-          path="/TherapyPage"
+          path="/therapy-sessions"
           element={
             isLoggedIn ? (
               <Layout>
@@ -125,7 +127,7 @@ function App() {
           }
         />
         <Route
-          path="/ToDoPage"
+          path="/ToDoList"
           element={
             isLoggedIn ? (
               <Layout>
@@ -137,7 +139,7 @@ function App() {
           }
         />
         <Route
-          path="/JournalPage"
+          path="/MyJournal"
           element={
             isLoggedIn ? (
               <Layout>
@@ -149,11 +151,23 @@ function App() {
           }
         />
         <Route
-          path="/MyEvents_Workshops"
+          path="/MyEvents&Workshops"
           element={
             isLoggedIn ? (
               <Layout>
                 <MyEvents_Workshops />
+              </Layout>
+            ) : (
+              <Navigate to="/LogInPage" />
+            )
+          }
+        />
+        <Route
+          path="/MyTherapySessions"
+          element={
+            isLoggedIn ? (
+              <Layout>
+                <MyTherapySessions />
               </Layout>
             ) : (
               <Navigate to="/LogInPage" />

@@ -18,10 +18,11 @@ function LogInPage({ setIsLoggedIn }) {
         setIsLoggedIn(true);
         navigate(from);
       } else {
-        console.error('Login failed:', response.data.message);
+        alert('Login failed: ' + response.data.message); // Display alert message
+        console.log('Login failed :', response.data.message); // Log to console for debugging
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      alert('Login failed: ' + (error.response ? error.response.data.message : error.message)); // Display alert message
     }
   };
 

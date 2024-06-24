@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom'; 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './MyEvents_Workshops.css';
 
 function MyEvents_Workshops() {
@@ -58,12 +57,7 @@ function MyEvents_Workshops() {
 
     return (
         <>
-        <div className="arrow-header">
-            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: '36px', color:'#bb5a5a', marginRight: '10px' }} />
-            </button>
-            <h1 className="h1-design">My Workshops & Events</h1>
-        </div> 
+        <ArrowHeader title="My Workshops & Events" />
             <div>
                 <div>
                     <h2 className='h2-workshop-events'>My Workshops</h2>

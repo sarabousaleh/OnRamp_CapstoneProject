@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { signup } from '../../api'; 
+import axios from 'axios';
 import './SignInPage.css';
 
 const SignupForm = () => {
@@ -15,13 +15,25 @@ const SignupForm = () => {
         nationality: '',
         telephoneNumber: ''
     });
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Form data being sent:', formData);
+
         try {
-            await signup(formData);
+            const response = await axios.post('http://localhost:5000/signup', formData);
+            if (response.status === 200) {
+                setSuccessMessage('User registered successfully!');
+                alert('User registered successfully!');
+                navigate('/LogInPage');
+            } else {
+                alert('Signup failed: ' + response.data.message);
+            }
         } catch (error) {
-            console.error(error);
+            alert('Signup failed: ' + (error.response ? error.response.data.message : error.message));
         }
     };
 
@@ -74,7 +86,9 @@ const SignupForm = () => {
                     <input type='tel' name='telephoneNumber' onChange={handleChange} />
                 </div>
                 <button className='signin-button' type='submit'>Sign Up</button>
-                <Link className="login-link" to="/LogInPage">Already have an account? Log In!</Link> 
+                {error && <p className="error-message">{error}</p>}
+                {successMessage && <p className="success-message">{successMessage}</p>}
+                <Link className="login-link" to="/LogInPage">Already have an account? Log In!</Link>
             </form>
         </div>
     );
