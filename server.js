@@ -622,23 +622,21 @@ app.get('/therapist-availability/:therapist_id', async (req, res) => {
 });
 
 
-app.post('/book-appointment', async (req, res) => {
-    const { therapist_id, appointment_time, additional_info } = req.body;
-
+// Booking an appointment
+app.post('/book-appointment', authenticateToken, async (req, res) => {
     try {
-        // Validate input if necessary
+        const { user_id } = req.user;
+        const { therapist_id, appointment_time, additional_info } = req.body;
 
-        // Insert the appointment into therapist_sessions table
         const query = `
-            INSERT INTO therapist_sessions (therapist_id, appointment_time, additional_info)
-            VALUES ($1, $2, $3)
+            INSERT INTO therapist_sessions (user_id, therapist_id, appointment_time, additional_info)
+            VALUES ($1, $2, $3, $4)
             RETURNING session_id`;
-        
-        const values = [therapist_id, appointment_time, additional_info];
+
+        const values = [user_id, therapist_id, appointment_time, additional_info];
         const result = await pool.query(query, values);
-        
         const session_id = result.rows[0].session_id;
-        
+
         res.status(201).json({ message: 'Appointment booked successfully', session_id });
     } catch (error) {
         console.error('Error booking appointment:', error.message);
@@ -646,25 +644,69 @@ app.post('/book-appointment', async (req, res) => {
     }
 });
 
-// Endpoint to fetch therapist sessions
-app.get('/therapist-sessions/:therapistId', async (req, res) => {
-    const { therapistId } = req.params;
+// Fetching user sessions
+app.get('/user-sessions', authenticateToken, async (req, res) => {
+    const { user_id } = req.user;
 
     try {
-        const therapistSessions = await pool.query(
+        const userSessions = await pool.query(
             `SELECT ts.session_id, ts.therapist_id, ts.appointment_time, ts.additional_info, ts.created_at, t.name as therapist_name 
              FROM therapist_sessions ts
              JOIN therapists t ON ts.therapist_id = t.therapist_id
-             WHERE ts.therapist_id = $1`,
-            [therapistId]
+             WHERE ts.user_id = $1`,
+            [user_id]
         );
 
-        res.json(therapistSessions.rows);
+        res.json(userSessions.rows);
     } catch (err) {
-        console.error('Error fetching therapist sessions:', err.message);
-        res.status(500).json({ error: 'Server error while fetching therapist sessions' });
+        console.error('Error fetching user sessions:', err.message);
+        res.status(500).json({ error: 'Server error while fetching user sessions' });
     }
 });
+
+// Unbooking (deleting) a user session
+app.delete('/user-sessions/:sessionId', authenticateToken, async (req, res) => {
+    const { sessionId } = req.params;
+    const { user_id } = req.user;
+
+    try {
+        const result = await pool.query(
+            'DELETE FROM therapist_sessions WHERE session_id = $1 AND user_id = $2 RETURNING *',
+            [sessionId, user_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Session not found or not authorized' });
+        }
+
+        res.json({ message: 'Session unbooked successfully' });
+    } catch (err) {
+        console.error('Error unbooking session:', err.message);
+        res.status(500).json({ error: 'Server error while unbooking session' });
+    }
+});
+
+// Fetch booked therapists for the logged-in user
+app.get('/user-booked-therapists', authenticateToken, async (req, res) => {
+    const { user_id } = req.user;
+
+    try {
+        const bookedTherapists = await pool.query(
+            `SELECT therapist_id 
+             FROM therapist_sessions 
+             WHERE user_id = $1`,
+            [user_id]
+        );
+
+        res.json(bookedTherapists.rows.map(row => row.therapist_id));
+    } catch (err) {
+        console.error('Error fetching booked therapists:', err.message);
+        res.status(500).json({ error: 'Server error while fetching booked therapists' });
+    }
+});
+
+
+
 
 
 

@@ -7,6 +7,7 @@ import './TherapyPage.css';
 
 const TherapyPage = () => {
     const [therapists, setTherapists] = useState([]);
+    const [bookedTherapists, setBookedTherapists] = useState([]);
     const [selectedTherapist, setSelectedTherapist] = useState('');
     const [availableTimes, setAvailableTimes] = useState([]);
     const [appointmentTime, setAppointmentTime] = useState('');
@@ -34,6 +35,22 @@ const TherapyPage = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const fetchBookedTherapists = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/user-booked-therapists', { credentials: 'include' });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch booked therapists');
+                }
+                const bookedTherapistsData = await response.json();
+                setBookedTherapists(bookedTherapistsData);
+            } catch (error) {
+                console.error('Error fetching booked therapists:', error.message);
+            }
+        };
+        fetchBookedTherapists();
+    }, []);
+
     const handleTherapistChange = async (e) => {
         const selectedId = e.target.value;
         setSelectedTherapist(selectedId);
@@ -51,23 +68,35 @@ const TherapyPage = () => {
         }
     };
 
-    const handleBooking = async (event) => {
-        event.preventDefault();
+    const handleBooking = async (e) => {
+        e.preventDefault();
+
         try {
             const response = await fetch('http://localhost:5000/book-appointment', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',  // Ensure cookies are sent
                 body: JSON.stringify({
                     therapist_id: selectedTherapist,
                     appointment_time: appointmentTime,
-                    additional_info: additionalInfo,
-                }),
+                    additional_info: additionalInfo
+                })
             });
-            if (!response.ok) {
+
+            if (response.ok) {
+                const data = await response.json();
+                setMessage('Appointment booked successfully');
+                setSelectedTherapist('');
+                setAppointmentTime('');
+                setAdditionalInfo('');
+                setAvailableTimes([]);
+                // Fetch booked therapists again to update the list
+                fetchBookedTherapists();
+            } else {
                 throw new Error('Failed to book appointment');
             }
-            const data = await response.json();
-            setMessage(data.message);
         } catch (error) {
             console.error('Error booking appointment:', error.message);
             setMessage('Failed to book appointment');
@@ -82,6 +111,19 @@ const TherapyPage = () => {
     const toggleModal = (therapist) => {
         setModalTherapist(therapist);
         setShowModal(!showModal);
+    };
+
+    const fetchBookedTherapists = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/user-booked-therapists', { credentials: 'include' });
+            if (!response.ok) {
+                throw new Error('Failed to fetch booked therapists');
+            }
+            const bookedTherapistsData = await response.json();
+            setBookedTherapists(bookedTherapistsData);
+        } catch (error) {
+            console.error('Error fetching booked therapists:', error.message);
+        }
     };
 
     return (
@@ -106,11 +148,13 @@ const TherapyPage = () => {
                                 required
                             >
                                 <option value="">--Select--</option>
-                                {therapists.map(therapist => (
-                                    <option key={therapist.therapist_id} value={therapist.therapist_id}>
-                                        {therapist.name}
-                                    </option>
-                                ))}
+                                {therapists
+                                    .filter(therapist => !bookedTherapists.includes(therapist.therapist_id))
+                                    .map(therapist => (
+                                        <option key={therapist.therapist_id} value={therapist.therapist_id}>
+                                            {therapist.name}
+                                        </option>
+                                    ))}
                             </select>
                         </div>
                         <div className="form-group">
@@ -173,58 +217,24 @@ const TherapyPage = () => {
                 ))}
             </div>
             
-            <div className="therapy-details">
-                <hr />
-                <h2>Types of Therapy You Might Need:</h2>
-                <p>Therapy encompasses a variety of approaches tailored to address different psychological and emotional needs individuals may face throughout their lives. Some common types include:</p>
-                <ul>
-                    <li><strong>Cognitive-Behavioral Therapy (CBT):</strong> Helps individuals identify and change negative thought patterns and behaviors.</li>
-                    <li><strong>Psychodynamic Therapy:</strong> Explores unconscious thoughts and emotions to understand current behaviors and relationships.</li>
-                    <li><strong>Family Therapy:</strong> Addresses conflicts and improves communication within families.</li>
-                    <li><strong>Art Therapy:</strong> Uses creative expression to explore emotions and promote healing.</li>
-                    <li><strong>Group Therapy:</strong> Provides support and feedback from peers dealing with similar issues.</li>
-                </ul>
-                <hr />
-                <h2>When and Why Therapy Is Beneficial?</h2>
-                <p>Therapy is beneficial in various situations:</p>
-                <ul>
-                    <li><strong>Managing Stress:</strong> Helps individuals cope with stressors in their personal or professional lives.</li>
-                    <li><strong>Grief and Trauma:</strong> Assists in processing loss or traumatic experiences, facilitating healing.</li>
-                    <li><strong>Life Transitions:</strong> Supports individuals adjusting to major life changes such as career shifts, marriage, or retirement.</li>
-                    <li><strong>Mental Health Disorders:</strong> Provides strategies to manage symptoms of depression, anxiety, OCD, and other disorders.</li>
-                    <li><strong>Improving Relationships:</strong> Enhances communication skills and fosters healthier interpersonal connections.</li>
-                </ul>
-                <hr />
-                <h2>Benefits of Therapy:</h2>
-                <p>Therapy offers numerous benefits:</p>
-                <ul>
-                    <li>Promotes self-awareness and personal growth.</li>
-                    <li>Empowers individuals to overcome obstacles and achieve goals.</li>
-                    <li>Enhances resilience and coping skills.</li>
-                    <li>Provides a safe space for emotional expression and validation.</li>
-                    <li>Improves overall mental well-being and quality of life.</li>
-                </ul>
-                <hr />
-            </div>
+            
             
             {showModal && modalTherapist && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={toggleModal}>&times;</span>
-                        <img src={modalTherapist.image_url} alt={modalTherapist.name} />
-
-
+                <div className="modal-overlay" onClick={() => toggleModal(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <span className="close-button" onClick={() => toggleModal(null)}>&times;</span>
                         <h2>{modalTherapist.name}</h2>
+                        <img src={modalTherapist.image_url} alt={modalTherapist.name} className="modal-image" />
                         <p><strong>Specialization:</strong> {modalTherapist.specialization}</p>
                         <p><strong>Location:</strong> {modalTherapist.location}</p>
+                        <p><strong>About:</strong> {modalTherapist.bio}</p>
                         <p><strong>Online Therapy:</strong> {modalTherapist.virtual_available ? 'Available' : 'Not Available'}</p>
                         <p><strong>In-person Therapy:</strong> {modalTherapist.in_person_available ? 'Available' : 'Not Available'}</p>
-                        <p><strong>About:</strong> {modalTherapist.about}</p>
                     </div>
                 </div>
             )}
         </div>
     );
-}
+};
 
 export default TherapyPage;

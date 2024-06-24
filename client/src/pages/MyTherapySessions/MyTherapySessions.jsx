@@ -5,29 +5,39 @@ import './MyTherapySessions.css';
 
 function MyTherapySessions() {
     const [therapySessions, setTherapySessions] = useState([]);
+    const [error, setError] = useState('');
+
+    const fetchTherapySessions = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/user-sessions', { withCredentials: true });
+            setTherapySessions(response.data);
+        } catch (error) {
+            console.error('Error fetching therapy sessions:', error);
+            setError('Error fetching therapy sessions.');
+        }
+    };
 
     useEffect(() => {
-        const fetchTherapySessions = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/therapist-sessions/2', { withCredentials: true });
-                setTherapySessions(response.data);
-            } catch (error) {
-                console.error('Error fetching therapy sessions:', error);
-            }
-        };
-
         fetchTherapySessions();
     }, []);
 
     const formatAppointmentTime = (appointmentTime) => {
-        const dateTimeParts = appointmentTime.split(' ');
-        if (dateTimeParts.length >= 2) {
-            const datePart = dateTimeParts[0];
-            const timePart = dateTimeParts[1].split('-')[0]; // Extracting only the time part
-
-            return `${new Date(datePart).toLocaleDateString()} ${timePart}`;
+        const [datePart, timePart] = appointmentTime.split(' ');
+        if (datePart && timePart) {
+            const [startTime] = timePart.split('-'); // Extracting only the start time part
+            return `${new Date(datePart).toLocaleDateString()} ${startTime}`;
         } else {
             return appointmentTime; // Handle edge case where appointment time format is unexpected
+        }
+    };
+
+    const handleUnbookSession = async (sessionId) => {
+        try {
+            await axios.delete(`http://localhost:5000/user-sessions/${sessionId}`, { withCredentials: true });
+            setTherapySessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
+        } catch (error) {
+            console.error('Error unbooking session:', error);
+            setError('Error unbooking session.');
         }
     };
 
@@ -35,6 +45,7 @@ function MyTherapySessions() {
         <>
             <ArrowHeader title="My Therapy Sessions" />
             <div className="therapy-sessions-container">
+                {error && <p className="error-message">{error}</p>}
                 {therapySessions.length > 0 ? (
                     therapySessions.map(session => (
                         <div key={session.session_id} className="therapy-session">
@@ -42,6 +53,7 @@ function MyTherapySessions() {
                             <p><strong>Therapist:</strong> {session.therapist_name}</p>
                             <p><strong>Additional Info:</strong> {session.additional_info}</p>
                             <p><strong>Created At:</strong> {new Date(session.created_at).toLocaleString()}</p>
+                            <button type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
                         </div>
                     ))
                 ) : (
