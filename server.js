@@ -432,6 +432,26 @@ app.get('/posts', async (req, res) => {
     }
 });
 
+app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, username } = req.user;
+        const { content } = req.body;
+
+        // Insert comment into the database
+        const newComment = await pool.query(
+            'INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *',
+            [id, user_id, content]
+        );
+
+        res.json(newComment.rows[0]);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
 app.get('/posts/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
@@ -486,6 +506,28 @@ app.post('/posts/:id/like', authenticateToken, async (req, res) => {
             );
         }
         res.json({ message: 'Like updated successfully' });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [id]);
+        res.json(likes.rows);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
+        res.json({ liked: like.rows.length > 0 });
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).send('Server error');
@@ -547,24 +589,6 @@ app.get('/posts/:id/disliked', authenticateToken, async (req, res) => {
 
 
 
-app.post('/posts/:id/comment', authenticateToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { user_id, username } = req.user;
-        const { content } = req.body;
-
-        // Insert comment into the database
-        const newComment = await pool.query(
-            'INSERT INTO comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *',
-            [id, user_id, content]
-        );
-
-        res.json(newComment.rows[0]);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
 
 // Endpoint to fetch all therapists with their availability
 app.get('/therapists', async (req, res) => {
