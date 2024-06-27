@@ -729,12 +729,53 @@ app.get('/user-booked-therapists', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/assessments', async (req, res) => {
+    try {
+        const assessmentsResult = await pool.query('SELECT * FROM assessments');
+        const assessments = assessmentsResult.rows;
 
+        for (const assessment of assessments) {
+            const questionsResult = await pool.query('SELECT * FROM questions WHERE assessment_id = $1', [assessment.assessment_id]);
+            assessment.questions = questionsResult.rows;
 
+            for (const question of assessment.questions) {
+                const optionsResult = await pool.query('SELECT * FROM options WHERE question_id = $1', [question.question_id]);
+                question.options = optionsResult.rows;
+            }
+        }
 
+        res.json(assessments);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
+app.post('/api/user_assessment_results', async (req, res) => {
+    const { user_id, assessment_id, answers } = req.body; // answers is an array of { question_id, option_id }
+    try {
+        // Insert user assessment result
+        const result = await pool.query(
+            'INSERT INTO user_assessment_results (user_id, assessment_id, taken_at) VALUES ($1, $2, NOW()) RETURNING result_id',
+            [user_id, assessment_id]
+        );
+        const result_id = result.rows[0].result_id;
 
+        // Insert user answers
+        const insertUserAnswersQuery = `
+            INSERT INTO user_answers (result_id, question_id, option_id) VALUES 
+            ${answers.map(a => `(${result_id}, ${a.question_id}, ${a.option_id})`).join(', ')}
+        `;
+        
+        await pool.query(insertUserAnswersQuery);
+
+        res.status(201).json({ result_id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

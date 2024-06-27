@@ -53,7 +53,7 @@ function MyTherapySessions() {
                             <p><strong>Therapist:</strong> {session.therapist_name}</p>
                             <p><strong>Additional Info:</strong> {session.additional_info}</p>
                             <p><strong>Created At:</strong> {new Date(session.created_at).toLocaleString()}</p>
-                            <button type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
+                            <button className='therapy-button' type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
                         </div>
                     ))
                 ) : (
