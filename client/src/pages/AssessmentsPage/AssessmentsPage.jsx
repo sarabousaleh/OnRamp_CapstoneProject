@@ -1,61 +1,95 @@
-import React, { useEffect, useState } from "react";
-import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+axios.defaults.withCredentials = true; // Ensure credentials (cookies) are sent with every request
 
 const AssessmentsPage = () => {
     const [assessments, setAssessments] = useState([]);
-    const [userAnswers, setUserAnswers] = useState({}); // To store user answers
+    const [selectedAssessment, setSelectedAssessment] = useState(null);
+    const [questions, setQuestions] = useState([]);
+    const [answers, setAnswers] = useState([]);
 
     useEffect(() => {
-        fetch('/api/assessments')
-            .then(response => response.json())
-            .then(data => setAssessments(data))
-            .catch(error => console.error('Error fetching assessments:', error));
+        const fetchAssessments = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/assessments');
+                setAssessments(response.data);
+            } catch (error) {
+                console.error('Error fetching assessments:', error);
+            }
+        };
+
+        fetchAssessments();
     }, []);
 
-    const handleAnswerChange = (question_id, option_id) => {
-        setUserAnswers(prevAnswers => ({
-            ...prevAnswers,
-            [question_id]: option_id
-        }));
+    const fetchQuestions = async (assessmentId) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/assessments/${assessmentId}`);
+            setQuestions(response.data.questions);
+        } catch (error) {
+            console.error('Error fetching questions:', error);
+        }
     };
 
-    const handleSubmit = (assessment_id) => {
-        const answers = Object.keys(userAnswers).map(question_id => ({
-            question_id: parseInt(question_id),
-            option_id: userAnswers[question_id]
-        }));
-
-        fetch('/api/user_assessment_results', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: 1, // Replace with actual user ID
-                assessment_id,
-                answers
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Assessment submitted successfully:', data);
-        })
-        .catch(error => console.error('Error submitting assessment:', error));
+    const handleAssessmentClick = (assessmentId) => {
+        setSelectedAssessment(assessmentId);
+        fetchQuestions(assessmentId);
     };
+
+    const handleAnswerChange = (questionId, optionId) => {
+        setAnswers(prevAnswers => {
+            const existingAnswerIndex = prevAnswers.findIndex(
+                answer => answer.question_id === questionId
+            );
+
+            if (existingAnswerIndex >= 0) {
+                const updatedAnswers = [...prevAnswers];
+                updatedAnswers[existingAnswerIndex].option_id = optionId;
+                return updatedAnswers;
+            }
+
+            return [...prevAnswers, { question_id: questionId, option_id: optionId }];
+        });
+    };
+
+    const handleSubmit = async () => {
+        const payload = { answers, assessment_id: selectedAssessment };
+        console.log('Payload:', payload);
+    
+        try {
+            const response = await axios.post('http://localhost:5000/submit-assessment', payload);
+            console.log('Response:', response.data);
+            alert(`Your mental health condition is: ${response.data.condition}`);
+        } catch (error) {
+            console.error('Error submitting answers:', error);
+        }
+    };
+    
+    
+    
 
     return (
         <div>
-            <ArrowHeader title="Assessments" />
-            <div>
+            <h1>Assessments</h1>
+            <ul>
                 {assessments.map(assessment => (
-                    <div key={assessment.assessment_id}>
-                        <h2>{assessment.name}</h2>
-                        <p>{assessment.description}</p>
-                        {assessment.questions.map(question => (
-                            <div key={question.question_id}>
-                                <p>{question.question_text}</p>
-                                {question.options.map(option => (
-                                    <label key={option.option_id}>
+                    <li key={assessment.assessment_id}>
+                        <button onClick={() => handleAssessmentClick(assessment.assessment_id)}>
+                            {assessment.name}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            {selectedAssessment && (
+                <div>
+                    <h2>Questions</h2>
+                    {questions.map(question => (
+                        <div key={question.question_id}>
+                            <p>{question.question_text}</p>
+                            {question.options.map(option => (
+                                <div key={option.option_id}>
+                                    <label>
                                         <input
                                             type="radio"
                                             name={`question_${question.question_id}`}
@@ -64,13 +98,13 @@ const AssessmentsPage = () => {
                                         />
                                         {option.option_text}
                                     </label>
-                                ))}
-                            </div>
-                        ))}
-                        <button onClick={() => handleSubmit(assessment.assessment_id)}>Submit</button>
-                    </div>
-                ))}
-            </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                    <button onClick={handleSubmit}>Submit Answers</button>
+                </div>
+            )}
         </div>
     );
 };

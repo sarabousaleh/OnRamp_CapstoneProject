@@ -729,53 +729,115 @@ app.get('/user-booked-therapists', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/api/assessments', async (req, res) => {
+app.get('/assessments', authenticateToken, async (req, res) => {
     try {
-        const assessmentsResult = await pool.query('SELECT * FROM assessments');
-        const assessments = assessmentsResult.rows;
+        const result = await pool.query('SELECT * FROM Assessments');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching assessments:', err.message);
+        res.status(500).json({ error: 'Server error while fetching assessments' });
+    }
+});
 
-        for (const assessment of assessments) {
-            const questionsResult = await pool.query('SELECT * FROM questions WHERE assessment_id = $1', [assessment.assessment_id]);
-            assessment.questions = questionsResult.rows;
+app.get('/assessments/:assessmentId', authenticateToken, async (req, res) => {
+    const { assessmentId } = req.params;
 
-            for (const question of assessment.questions) {
-                const optionsResult = await pool.query('SELECT * FROM options WHERE question_id = $1', [question.question_id]);
-                question.options = optionsResult.rows;
-            }
+    try {
+        const questions = await pool.query(
+            'SELECT * FROM questions WHERE assessment_id = $1',
+            [assessmentId]
+        );
+
+        const questionIds = questions.rows.map(q => q.question_id);
+        if (questionIds.length === 0) {
+            return res.json({ questions: [] });
         }
 
-        res.json(assessments);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-app.post('/api/user_assessment_results', async (req, res) => {
-    const { user_id, assessment_id, answers } = req.body; // answers is an array of { question_id, option_id }
-    try {
-        // Insert user assessment result
-        const result = await pool.query(
-            'INSERT INTO user_assessment_results (user_id, assessment_id, taken_at) VALUES ($1, $2, NOW()) RETURNING result_id',
-            [user_id, assessment_id]
+        const options = await pool.query(
+            'SELECT * FROM options WHERE question_id = ANY($1::int[])',
+            [questionIds]
         );
-        const result_id = result.rows[0].result_id;
 
-        // Insert user answers
-        const insertUserAnswersQuery = `
-            INSERT INTO user_answers (result_id, question_id, option_id) VALUES 
-            ${answers.map(a => `(${result_id}, ${a.question_id}, ${a.option_id})`).join(', ')}
-        `;
-        
-        await pool.query(insertUserAnswersQuery);
+        const questionsWithOptions = questions.rows.map(question => ({
+            ...question,
+            options: options.rows.filter(option => option.question_id === question.question_id)
+        }));
 
-        res.status(201).json({ result_id });
+        res.json({ questions: questionsWithOptions });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching questions and options:', err.message);
+        res.status(500).json({ error: 'Server error while fetching questions and options' });
     }
 });
+
+
+app.post('/submit-assessment', authenticateToken, async (req, res) => {
+    const { user_id } = req.user;
+    const { answers, assessment_id } = req.body; // answers should be an array of { question_id, option_id }
+
+    if (!Array.isArray(answers) || !assessment_id) {
+        return res.status(400).json({ error: 'Invalid input format' });
+    }
+
+    try {
+        // Insert the answers into the user_answers table
+        const insertAnswersQuery = `
+            INSERT INTO user_answers (user_id, question_id, option_id, assessment_id)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *;
+        `;
+        const insertAnswersPromises = answers.map(answer => {
+            const { question_id, option_id } = answer;
+            return pool.query(insertAnswersQuery, [user_id, question_id, option_id, assessment_id]);
+        });
+
+        const answersResults = await Promise.all(insertAnswersPromises);
+
+        // Calculate the total score
+        const optionIds = answers.map(answer => answer.option_id);
+        const scoreQuery = `
+            SELECT SUM(score) as total_score
+            FROM options
+            WHERE option_id = ANY($1::int[]);
+        `;
+        const scoreResult = await pool.query(scoreQuery, [optionIds]);
+        const totalScore = scoreResult.rows[0].total_score;
+
+        // Determine the user's mental health condition based on the total score
+        let condition = '';
+        if (totalScore < 5) {
+            condition = 'Low risk';
+        } else if (totalScore < 10) {
+            condition = 'Moderate risk';
+        } else if (totalScore < 15) {
+            condition = 'High risk';
+        } else {
+            condition = 'Severe risk';
+        }
+
+        // Insert the assessment results into assessment_results table
+        const insertResultQuery = `
+            INSERT INTO assessment_results (user_id, assessment_id, total_score, mental_health_condition)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *;
+        `;
+        const result = await pool.query(insertResultQuery, [user_id, assessment_id, totalScore, condition]);
+
+        res.json({ message: 'Answers submitted successfully', condition, answersResults, result: result.rows[0] });
+    } catch (err) {
+        console.error('Error submitting answers:', err.message);
+        res.status(500).json({ error: 'Server error while submitting answers' });
+    }
+});
+
+
+
+
+
+
+
+
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
