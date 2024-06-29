@@ -1,0 +1,140 @@
+.assess-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-bottom: 20px;
+}
+
+.assess-image-container {
+    flex: 1;
+    max-width: 300px;
+    margin-left: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    margin-top: 50px;
+}
+
+.assess-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 50%;
+}
+
+.assessments-container {
+    flex: 2;
+    max-width: 900px;
+}
+
+.assessments-container p {
+    color: #6a2828;
+    font-size: large;
+}
+
+.assess-title {
+    color: #bb5a5a;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.assessment-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.assessment-title {
+    font-size: 20px; 
+    font-weight: bold; 
+    cursor: pointer;
+    margin: 10px;
+    transition: color 0.3s;
+    color: #bb5a5a;
+    text-decoration: underline;
+}
+
+.assessment-title:hover {
+    color: #702c2c; /* Change color on hover */
+}
+
+.assess-questions-container {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.assess-subtitle {
+    color: #bb5a5a;
+    margin-bottom: 15px;
+}
+
+.assess-question-card {
+    border: 1px solid #d89c9c;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.assess-question-text {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #6a2828;
+}
+
+.assess-option-item {
+    margin-bottom: 10px;
+    color: #762525;
+}
+
+.assess-label {
+    font-size: 16px;
+}
+
+.assess-input[type="radio"] {
+    margin-right: 10px;
+}
+
+.assess-navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.assess-navigation-buttons button {
+    background-color: #bb5a5a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.assess-navigation-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.assess-navigation-buttons button:hover:not(:disabled) {
+    background-color: #6a2828;
+}
+
+.assess-submit-button {
+    background-color: #bb5a5a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 20px auto 0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    display: block;
+    width: fit-content;
+}
+
+.assess-submit-button:hover {
+    background-color: #762525;
+}

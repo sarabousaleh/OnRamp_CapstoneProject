@@ -58,8 +58,8 @@ function MyEvents_Workshops() {
     return (
         <>
         <ArrowHeader title="My Workshops & Events" />
-            <div>
-                <div>
+            <div className='.workshops-events-container'>
+                <div >
                     <h2 className='h2-workshop-events'>My Workshops</h2>
                     {userWorkshops.length > 0 ? (
                         userWorkshops.map((workshop, index) => (

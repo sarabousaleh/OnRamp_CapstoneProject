@@ -49,10 +49,9 @@ function MyTherapySessions() {
                 {therapySessions.length > 0 ? (
                     therapySessions.map(session => (
                         <div key={session.session_id} className="therapy-session">
-                            <p><strong>Time:</strong> {formatAppointmentTime(session.appointment_time)}</p>
                             <p><strong>Therapist:</strong> {session.therapist_name}</p>
+                            <p><strong>Time:</strong> {formatAppointmentTime(session.appointment_time)}</p>
                             <p><strong>Additional Info:</strong> {session.additional_info}</p>
-                            <p><strong>Created At:</strong> {new Date(session.created_at).toLocaleString()}</p>
                             <button className='therapy-button' type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
                         </div>
                     ))

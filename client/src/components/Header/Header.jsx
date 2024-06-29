@@ -13,7 +13,7 @@ function Header() {
       <Toolbar className='NavBar'>
         <Typography variant="h6" component={Link} to="/" sx={{ 
             flexGrow: 1, 
-            fontSize: '2.5rem', 
+            fontSize: '2.6rem', 
             fontFamily: "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
             color: 'inherit', 
             textDecoration: 'none',
