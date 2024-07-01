@@ -830,13 +830,19 @@ app.post('/submit-assessment', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
-
-
-
-
+// Endpoint to fetch team members
+app.get('/team-members', async (req, res) => {
+    try {
+      const client = await pool.connect();
+      const result = await client.query('SELECT name, description, pic FROM team_members');
+      const teamMembers = result.rows;
+      client.release();
+      res.json(teamMembers);
+    } catch (err) {
+      console.error('Error fetching team members:', err);
+      res.status(500).json({ error: 'Error fetching team members' });
+    }
+  });
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

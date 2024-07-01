@@ -11,6 +11,8 @@ const AssessmentsPage = () => {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [result, setResult] = useState(null); // State to store the result
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
     useEffect(() => {
         const fetchAssessments = async () => {
@@ -62,8 +64,8 @@ const AssessmentsPage = () => {
     
         try {
             const response = await axios.post('http://localhost:5000/submit-assessment', payload);
-            console.log('Response:', response.data);
-            alert(`Your mental health condition is: ${response.data.condition}`);
+            setResult(response.data.condition);
+            setShowModal(true);
         } catch (error) {
             console.error('Error submitting answers:', error);
         }
@@ -78,6 +80,25 @@ const AssessmentsPage = () => {
     const previousQuestion = () => {
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
+        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
+    const getAdvice = (condition) => {
+        switch (condition) {
+            case 'Depression':
+                return 'We advise you to consider seeking support from a mental health professional, practicing self-care, and staying connected with loved ones.';
+            case 'Anxiety':
+                return 'We advise you to try relaxation techniques such as deep breathing exercises, mindfulness meditation, and regular physical activity.';
+            case 'Stress':
+                return 'We advise you to identify stressors and develop healthy coping mechanisms, such as time management, hobbies, and talking to a therapist.';
+            case 'Healthy':
+                return 'We advise you to maintain a balanced lifestyle with regular exercise, a healthy diet, sufficient sleep, and strong social connections.';
+            default:
+                return 'We advise you to consult with a healthcare professional for personalized advice and support.';
         }
     };
 
@@ -134,6 +155,17 @@ const AssessmentsPage = () => {
                 <img src="https://i.pinimg.com/564x/9b/f4/06/9bf40657c69bd3c3e92d5a2e7df818fd.jpg" alt="Profile" />
             </div>
         </div>
+
+        {showModal && (
+            <div className="modal">
+                <div className="modal-content">
+                    <span className="close" onClick={closeModal}>&times;</span>
+                    <h2>Assessment Result</h2>
+                    <p>Your mental health condition is: <strong>{result}</strong></p>
+                    <p>{getAdvice(result)}</p>
+                </div>
+            </div>
+        )}
         </>
     );
 };
