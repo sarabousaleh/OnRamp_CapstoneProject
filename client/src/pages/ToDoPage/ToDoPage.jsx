@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import Note from "../../components/Note/Note";
 import CreateArea from "../../components/CreateArea/CreateArea";
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +9,12 @@ import './ToDoPage.css';
 function ToDoPage() {
   const [notes, setNotes] = useState([]);
   const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/notes', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/notes`, { withCredentials: true });
         setNotes(response.data);
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -28,7 +29,7 @@ function ToDoPage() {
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/notes/${id}`, { withCredentials: true });
+      await axios.delete(`${backendUrl}/notes/${id}`, { withCredentials: true });
       setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
     } catch (error) {
       console.error('Error deleting note:', error);

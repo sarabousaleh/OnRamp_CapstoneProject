@@ -7,6 +7,7 @@ function CreateArea(props) {
     title: "",
     content: ""
   });
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -19,7 +20,7 @@ function CreateArea(props) {
   async function submitNote(event) {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/notes', note, { withCredentials: true });
+      const response = await axios.post(`${backendUrl}/notes`, note, { withCredentials: true });
       props.onAdd(response.data); 
       setNote({
         title: "",

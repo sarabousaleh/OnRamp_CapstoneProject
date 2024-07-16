@@ -35,3 +35,10 @@
     color: #863a3a;
     text-decoration: underline;
 }
+
+@media screen and (max-width: 768px) {
+    .note {
+        width: 85%; 
+        max-width: none; 
+    }
+}

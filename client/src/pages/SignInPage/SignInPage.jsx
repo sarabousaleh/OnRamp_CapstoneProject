@@ -18,13 +18,14 @@ const SignupForm = () => {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('Form data being sent:', formData);
 
         try {
-            const response = await axios.post('http://localhost:5000/signup', formData);
+            const response = await axios.post(`${backendUrl}/signup`, formData);
             if (response.status === 200) {
                 setSuccessMessage('User registered successfully!');
                 alert('User registered successfully!');

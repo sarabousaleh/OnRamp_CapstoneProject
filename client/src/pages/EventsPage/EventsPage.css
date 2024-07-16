@@ -71,7 +71,7 @@
 .workshop-info h2 {
     color: #e79e85;
     margin-bottom: 10px;
-    text-align: center; /* Center the text horizontally */
+    text-align: center;
 }
 
 .workshop-info p {
@@ -87,7 +87,7 @@
     border-radius: 5px;
     cursor: pointer;
     display: inline-block;
-    align-self: center; /* Center the button vertically */
+    align-self: center;
 }
 
 .participate-button:hover {
@@ -197,7 +197,7 @@
     border-radius: 5px;
     cursor: pointer;
     display: inline-block;
-    align-self: center; /* Center the button vertically */
+    align-self: center;
 }
 
 .participate-button:hover {
@@ -206,15 +206,26 @@
 }
 
 @media screen and (max-width: 768px) {
-    .event {
+    .event, .event {
         width: calc(100% - 20px);
         flex-direction: column;
     }
 
-    .event-img {
-        width: 100%;
-        height: auto;
+    .workshop-img img,.event-img {
+        width: 200px;
+        height: 200px;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+
+    .workshops-container, .events-container {
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .workshopsPage-title ,.eventsPage-title {
+        writing-mode: horizontal-tb;
+        margin-right: 0px;
     }
 }

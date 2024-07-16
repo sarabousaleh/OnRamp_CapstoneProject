@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import './AccountPage.css';
 
 function AccountPage() {
@@ -23,11 +23,12 @@ function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/user', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/user`, { withCredentials: true });
         setUserData(response.data);
         setEditedUserData(response.data);
       } catch (error) {
@@ -39,7 +40,7 @@ function AccountPage() {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/logout', {}, { withCredentials: true });
+      const response = await axios.post(`${backendUrl}/logout`, {}, { withCredentials: true });
       if (response.status === 200) {
         console.log('Logout successful');
         navigate('/LogInPage');
@@ -69,7 +70,7 @@ function AccountPage() {
       formData.append('profileImage', imageFile);
 
       try {
-        const uploadResponse = await axios.post('http://localhost:5000/upload', formData, {
+        const uploadResponse = await axios.post(`${backendUrl}/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -83,7 +84,7 @@ function AccountPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/update_user',
+        `${backendUrl}/update_user`,
         { ...editedUserData, password: passwordData.newPassword, profileImage: profileImagePath },
         { withCredentials: true }
       );
@@ -154,7 +155,7 @@ function AccountPage() {
       <div className="profile-flex-container">
         <div className="image-container">
           <img
-            src={userData.profileImage ? `http://localhost:5000/${userData.profileImage}` : "https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg"}
+            src={userData.profileImage ? `${backendUrl}/${userData.profileImage}` : "https://i.pinimg.com/564x/6f/57/76/6f57760966a796644b8cfb0fbc449843.jpg"}
             alt="user"
             className="profile-image"
           />

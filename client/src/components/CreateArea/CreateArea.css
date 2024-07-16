@@ -1,22 +1,25 @@
 .note-form {
   position: relative;
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
   margin: 20px auto;
   background: #fff;
   padding: 15px;
   border-radius: 7px;
   box-shadow: 0 1px 5px rgb(138, 137, 137);
+  box-sizing: border-box;
 }
 
 .note-form input,
 .note-form textarea {
-  width: calc(100% - 10px); /* Adjust width to accommodate button */
+  width: calc(100% - 10px);
   border: none;
-  padding: 4px;
+  padding: 8px;
   outline: none;
   font-size: 1.2em;
   font-family: inherit;
   resize: none;
+  margin-bottom: 10px;
 }
 
 .note-form button {
@@ -27,8 +30,8 @@
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 50px; /* Adjusted to the larger size */
-  height: 50px; /* Adjusted to the larger size */
+  width: 50px;
+  height: 50px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   outline: none;
@@ -36,4 +39,27 @@
 
 .note-form button:hover {
   background: #7f3333;
+}
+
+@media screen and (max-width: 768px) {
+  .note-form {
+    width: calc(100% - 20px);
+    max-width: none;
+    margin: 10px auto;
+    padding: 10px;
+  }
+
+  .note-form input,
+  .note-form textarea {
+    width: calc(100% - 16px);
+    padding: 6px;
+    font-size: 1em;
+  }
+  
+  .note-form button {
+    right: 10px;
+    bottom: -20px;
+    width: 40px;
+    height: 40px;
+  }
 }

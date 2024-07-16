@@ -6,11 +6,12 @@ import axios from 'axios';
 const EventsPage = () => {
     const [workshops, setWorkshops] = useState([]);
     const [events, setEvents] = useState([]);
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         const fetchWorkshops = async () => {
             try {
-                const response = await fetch('http://localhost:5000/workshops');
+                const response = await fetch(`${backendUrl}/workshops`);
                 const data = await response.json();
                 setWorkshops(data);
             } catch (error) {
@@ -24,7 +25,7 @@ const EventsPage = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await fetch('http://localhost:5000/events');
+                const response = await fetch(`${backendUrl}/events`);
                 const data = await response.json();
                 setEvents(data);
             } catch (error) {
@@ -37,7 +38,7 @@ const EventsPage = () => {
 
     const registerForWorkshop = async (workshopId) => {
         try {
-            const response = await axios.post(`http://localhost:5000/register-workshop/${workshopId}`, {}, { withCredentials: true });
+            const response = await axios.post(`${backendUrl}/register-workshop/${workshopId}`, {}, { withCredentials: true });
             console.log('User registered successfully for the workshop', response.data);
             alert('Congratulations! You have been registered for the workshop.');
         } catch (error) {
@@ -47,7 +48,7 @@ const EventsPage = () => {
 
     const registerForEvent = async (eventId) => {
         try {
-            const response = await axios.post(`http://localhost:5000/register-event/${eventId}`, {}, { withCredentials: true });
+            const response = await axios.post(`${backendUrl}/register-event/${eventId}`, {}, { withCredentials: true });
             console.log('User registered successfully for the event', response.data);
             alert('Congratulations! You have been registered for the event.');
         } catch (error) {

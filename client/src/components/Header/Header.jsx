@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -8,28 +8,50 @@ import './Header.css';
 
 function Header() {
   const location = useLocation();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
-    <AppBar >
+    <AppBar>
       <Toolbar className='NavBar'>
-        <Typography variant="h6" component={Link} to="/" sx={{ 
-            flexGrow: 1, 
-            fontSize: '2.5rem', 
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          sx={{
+            flexGrow: 1,
+            fontSize: '2.6rem',
             fontFamily: "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
-            color: 'inherit', 
+            color: 'inherit',
             textDecoration: 'none',
-            cursor: 'pointer'
-          }}>
+            cursor: 'pointer',
+            '&:hover': {
+              textDecoration: 'underline',
+            }
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           Bloom
         </Typography>
-        <Button color="inherit">
-          <Link to="/services" style={{ color: 'inherit', textDecoration: 'none', fontSize: '1.1rem' }}>Services</Link>
-        </Button>
-        <Button color="inherit">
-          <Link to="/resources" style={{ color: 'inherit', textDecoration: 'none', fontSize: '1.1rem' }}>Resources</Link>
-        </Button>
-        <Button color="inherit">
-          <Link to="/account" style={{ color: 'inherit', textDecoration: 'none', fontSize: '1.1rem' }}>Account</Link>
-        </Button>
+        <div className={`nav-links ${isHovered ? 'show-links' : ''}`}>
+          <Button color="inherit">
+            <Link to="/services" className="nav-link">Services</Link>
+          </Button>
+          <Button color="inherit">
+            <Link to="/resources" className="nav-link">Resources</Link>
+          </Button>
+          <Button color="inherit">
+            <Link to="/account" className="nav-link">Account</Link>
+          </Button>
+        </div>
       </Toolbar>
     </AppBar>
   );

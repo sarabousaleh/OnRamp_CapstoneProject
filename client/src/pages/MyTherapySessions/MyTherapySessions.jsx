@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './MyTherapySessions.css';
 
 function MyTherapySessions() {
     const [therapySessions, setTherapySessions] = useState([]);
     const [error, setError] = useState('');
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const fetchTherapySessions = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/user-sessions', { withCredentials: true });
+            const response = await axios.get(`${backendUrl}/user-sessions`, { withCredentials: true });
             setTherapySessions(response.data);
         } catch (error) {
             console.error('Error fetching therapy sessions:', error);
@@ -33,7 +34,7 @@ function MyTherapySessions() {
 
     const handleUnbookSession = async (sessionId) => {
         try {
-            await axios.delete(`http://localhost:5000/user-sessions/${sessionId}`, { withCredentials: true });
+            await axios.delete(`${backendUrl}/user-sessions/${sessionId}`, { withCredentials: true });
             setTherapySessions(prevSessions => prevSessions.filter(session => session.session_id !== sessionId));
         } catch (error) {
             console.error('Error unbooking session:', error);
@@ -49,11 +50,11 @@ function MyTherapySessions() {
                 {therapySessions.length > 0 ? (
                     therapySessions.map(session => (
                         <div key={session.session_id} className="therapy-session">
-                            <p><strong>Time:</strong> {formatAppointmentTime(session.appointment_time)}</p>
+                            <img src={session.image_url} alt={`${session.therapist_name}'s profile`} className="therapist-image" />
                             <p><strong>Therapist:</strong> {session.therapist_name}</p>
+                            <p><strong>Time:</strong> {formatAppointmentTime(session.appointment_time)}</p>
                             <p><strong>Additional Info:</strong> {session.additional_info}</p>
-                            <p><strong>Created At:</strong> {new Date(session.created_at).toLocaleString()}</p>
-                            <button type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
+                            <button className='therapy-button' type="submit" onClick={() => handleUnbookSession(session.session_id)}>Unbook</button>
                         </div>
                     ))
                 ) : (

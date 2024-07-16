@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import './LogInPage.css';
 
 function LogInPage({ setIsLoggedIn }) {
@@ -9,14 +9,23 @@ function LogInPage({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/account" } };
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', { username, password }, { withCredentials: true });
+      const response = await axios.post(`${backendUrl}/login`, { username, password }, { withCredentials: true });
       if (response.data.message === 'Login successful') {
         setIsLoggedIn(true);
-        navigate(from);
+
+        // Redirect based on user role
+        if (response.data.is_admin) {
+          navigate('/admin/dashboard');
+        } else if (response.data.is_therapist) {
+          navigate('/therapist/dashboard');
+        } else {
+          navigate(from);
+        }
       } else {
         alert('Login failed: ' + response.data.message); // Display alert message
         console.log('Login failed :', response.data.message); // Log to console for debugging

@@ -11,6 +11,10 @@
   background-size: 10px 10px;
 }
 
+.mission-container a {
+  text-decoration: none;
+}
+
 .mission-container p {
   text-align: center;
   padding-left: 40px;
@@ -18,10 +22,23 @@
   color: rgb(84, 37, 20);
 }
 
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+  .mission-container {
+    padding: 20px; /* Adjust padding for smaller screens */
+  }
+
+  .mission-container p {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
 .contact-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch; /* Ensure all children are stretched to the same height */
 }
 
 .contact {
@@ -34,6 +51,10 @@
   width: 300px;
   text-align: center;
   margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensure content is evenly spaced */
+  height: 250px; /* Set a fixed height */
 }
 
 .contact h2 {
@@ -42,6 +63,7 @@
 
 .contact p {
   margin: 0;
+  flex-grow: 1; /* Ensure description text takes up available space */
 }
 
 @media screen and (max-width: 768px) {

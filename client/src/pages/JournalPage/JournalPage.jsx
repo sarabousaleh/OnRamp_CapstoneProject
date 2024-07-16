@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import { useNavigate } from 'react-router-dom';
 import './JournalPage.css';
@@ -13,11 +13,12 @@ const JournalPage = () => {
     const [editingEntry, setEditingEntry] = useState(null);
     const [editedContent, setEditedContent] = useState('');
     const navigate = useNavigate();
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         const fetchEntries = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/journal_entries', { withCredentials: true });
+                const response = await axios.get(`${backendUrl}/journal_entries`, { withCredentials: true });
                 setEntries(response.data);
             } catch (error) {
                 console.error('Error fetching journal entries:', error);
@@ -28,7 +29,7 @@ const JournalPage = () => {
 
     const handleSaveEntry = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/journal_entries', {
+            const response = await axios.post(`${backendUrl}/journal_entries`, {
                 content: newEntry
             }, { withCredentials: true });
             setEntries([...entries, response.data]);
@@ -44,7 +45,7 @@ const JournalPage = () => {
 
     const handleDeleteEntry = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/journal_entries/${id}`, { withCredentials: true });
+            await axios.delete(`${backendUrl}/journal_entries/${id}`, { withCredentials: true });
             setEntries(entries.filter(entry => entry.id !== id));
         } catch (error) {
             console.error('Error deleting journal entry:', error);
@@ -58,7 +59,7 @@ const JournalPage = () => {
 
     const handleSaveEditedEntry = async () => {
         try {
-            const response = await axios.put(`http://localhost:5000/journal_entries/${editingEntry}`, {
+            const response = await axios.put(`${backendUrl}/journal_entries/${editingEntry}`, {
                 content: editedContent
             }, { withCredentials: true });
             setEntries(entries.map(entry => (entry.id === editingEntry ? response.data : entry)));

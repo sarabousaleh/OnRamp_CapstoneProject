@@ -14,6 +14,7 @@ const BlogsPage = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [dislikes, setDislikes] = useState({});
     const [dislikedPosts, setDislikedPosts] = useState(new Set());
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
     
 
     useEffect(() => {
@@ -31,7 +32,7 @@ const BlogsPage = () => {
 
 const fetchDislikes = async (postId) => {
     try {
-        const response = await fetch(`http://localhost:5000/posts/${postId}/dislikes`, {
+        const response = await fetch(`${backendUrl}/posts/${postId}/dislikes`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -48,7 +49,7 @@ const fetchDislikes = async (postId) => {
 
 const checkIfDisliked = async (postId) => {
     try {
-        const response = await fetch(`http://localhost:5000/posts/${postId}/disliked`, {
+        const response = await fetch(`${backendUrl}/posts/${postId}/disliked`, {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
@@ -68,7 +69,7 @@ const checkIfDisliked = async (postId) => {
 
     const fetchPosts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/posts', {
+            const response = await fetch(`${backendUrl}/posts`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
@@ -86,7 +87,7 @@ const checkIfDisliked = async (postId) => {
 
     const fetchCurrentUser = async () => {
         try {
-            const response = await fetch('http://localhost:5000/user', {
+            const response = await fetch(`${backendUrl}/user`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
@@ -111,7 +112,7 @@ const checkIfDisliked = async (postId) => {
 
     const fetchComments = async (postId) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/comments`);
+            const response = await fetch(`${backendUrl}/posts/${postId}/comments`);
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(`Error fetching comments: ${error.error}`);
@@ -128,7 +129,7 @@ const checkIfDisliked = async (postId) => {
 
     const fetchLikes = async (postId) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/likes`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/likes`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
@@ -145,7 +146,7 @@ const checkIfDisliked = async (postId) => {
 
     const checkIfLiked = async (postId) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/liked`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/liked`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' }
@@ -165,7 +166,7 @@ const checkIfDisliked = async (postId) => {
     const handleLike = async (postId) => {
         try {
             const isLiked = likedPosts.has(postId);
-            const response = await fetch(`http://localhost:5000/posts/${postId}/like`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/like`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -209,7 +210,7 @@ const checkIfDisliked = async (postId) => {
     const handleDislike = async (postId) => {
         try {
             const isDisliked = dislikedPosts.has(postId);
-            const response = await fetch(`http://localhost:5000/posts/${postId}/dislike`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/dislike`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -253,7 +254,7 @@ const checkIfDisliked = async (postId) => {
 
     const handleComment = async (postId, content) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/comment`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/comment`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -278,7 +279,7 @@ const checkIfDisliked = async (postId) => {
 
     const handleDeleteComment = async (postId, commentId) => {
         try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}/comments/${commentId}`, {
+            const response = await fetch(`${backendUrl}/posts/${postId}/comments/${commentId}`, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: {

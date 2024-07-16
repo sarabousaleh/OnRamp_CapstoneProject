@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import './MissionSection.css'; 
-import '../../App.css'
+import '../../App.css';
 
 function MissionSection({ title, description, contacts }) {
   return (
@@ -10,10 +11,12 @@ function MissionSection({ title, description, contacts }) {
       <p>{description}</p>
       <div className="contact-container">
         {contacts.map((contact, index) => (
-          <div key={index} className="contact">
-            <h2>{contact.name}</h2>
-            <p>{contact.desc}</p>
-          </div>
+          <Link key={index} to={contact.link} className="contact-link">
+            <div className="contact">
+              <h2>{contact.name}</h2>
+              <p>{contact.desc}</p>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
@@ -27,6 +30,7 @@ MissionSection.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       desc: PropTypes.string.isRequired,
+      link: PropTypes.string.isRequired, // Add link as a required prop
     })
   ).isRequired,
 };

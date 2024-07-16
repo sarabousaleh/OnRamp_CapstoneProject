@@ -6,12 +6,12 @@ import TeamSection from '../../components/TeamSection/TeamSection';
 
 function HomePage({ count, setCount, YOURNAME, CURRENTYEAR, customestyle }) {
   const contacts = [
-    { name: 'Self-Assessment Tools', desc: 'Discover your mental health status with interactive quizzes covering stress, anxiety, depression, and more. Get personalized recommendations, including therapist matches based on your results' },
-    { name: 'Therapy Sessions', desc: 'Access secure online therapy sessions with options for individual, group, or family therapy. Chat with your therapist and choose from a range of experienced professionals.' },
-    { name: 'Blogs', desc: ' Explore engaging blogs where you can like, comment, and share insights on mental health topics, personal experiences, and professional advice.' },
-    { name: 'Journal', desc: 'Reflect and track your thoughts, feelings, and experiences with a personal journaling feature. Write daily entries to promote self-awareness and emotional expression.' },
-    { name: 'Workshops & Events', desc: 'Join live workshops and events focused on stress management, resilience building, and emotional intelligence. Participate in interactive sessions to enhance your mental well-being.' },
-    { name: 'Educational Resource Library', desc: 'Access a comprehensive library of articles, videos, podcasts, and webinars covering diverse mental health topics. Stay informed with updates on research, tips for well-being, and understanding mental health disorders.' }
+    { name: 'Self-Assessment Tools', desc: 'Discover your mental health status with interactive quizzes covering stress, anxiety, depression, and more. Get personalized recommendations, including therapist matches based on your results.', link: '/assessments' },
+    { name: 'Therapy Sessions', desc: 'Access secure online therapy sessions with options for individual, group, or family therapy. Chat with your therapist and choose from a range of experienced professionals.', link: '/therapy-sessions' },
+    { name: 'Blogs', desc: 'Explore engaging blogs where you can like, comment, and share insights on mental health topics, personal experiences, and professional advice.', link: '/blogs' },
+    { name: 'Journal', desc: 'Reflect and track your thoughts, feelings, and experiences with a personal journaling feature. Write daily entries to promote self-awareness and emotional expression.', link: '/MyJournal' },
+    { name: 'Workshops & Events', desc: 'Join live workshops and events focused on stress management, resilience building, and emotional intelligence. Participate in interactive sessions to enhance your mental well-being.', link: '/workshops&events' },
+    { name: 'Educational Resource Library', desc: 'Access a large library of articles, videos, and podcasts covering diverse mental health topics. Stay informed with updates on research, tips for well-being, understand mental health disorders.', link: '/library' }
   ];
 
   const team = [
@@ -34,7 +34,7 @@ function HomePage({ count, setCount, YOURNAME, CURRENTYEAR, customestyle }) {
         title="Our Mission"
         description="Discover the pathway to enhanced mental well-being through our empowering resources and personalized support. With tailored guidance and practical tools at your disposal, embark on a journey of self-discovery and growth. Let us empower you to thrive, nurturing a resilient mindset and fostering a profound sense of inner peace and fulfillment."
         contacts={contacts}
-      />
+      /> 
 
       <StorySection
         title="Our Story"

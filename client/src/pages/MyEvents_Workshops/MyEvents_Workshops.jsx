@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 import { Link, useNavigate } from 'react-router-dom'; 
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './MyEvents_Workshops.css';
@@ -12,11 +12,12 @@ function MyEvents_Workshops() {
 
     const [userWorkshops, setUserWorkshops] = useState([]);
     const [userEvents, setUserEvents] = useState([]);
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         const fetchUserWorkshops = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/user-workshops', { withCredentials: true });
+                const response = await axios.get(`${backendUrl}/user-workshops`, { withCredentials: true });
                 setUserWorkshops(response.data);
             } catch (error) {
                 console.error('Error fetching user workshops:', error);
@@ -25,7 +26,7 @@ function MyEvents_Workshops() {
 
         const fetchUserEvents = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/user-events', { withCredentials: true });
+                const response = await axios.get(`${backendUrl}/user-events`, { withCredentials: true });
                 setUserEvents(response.data);
             } catch (error) {
                 console.error('Error fetching user events:', error);
@@ -38,7 +39,7 @@ function MyEvents_Workshops() {
 
     const handleWithdrawWorkshop = async (workshopId) => {
         try {
-            await axios.delete(`http://localhost:5000/withdraw-workshop/${workshopId}`, { withCredentials: true });
+            await axios.delete(`${backendUrl}/withdraw-workshop/${workshopId}`, { withCredentials: true });
             setUserWorkshops(userWorkshops.filter(workshop => workshop.workshop_id !== workshopId));
         } catch (error) {
             console.error('Error withdrawing from workshop:', error);
@@ -47,7 +48,7 @@ function MyEvents_Workshops() {
 
     const handleWithdrawEvent = async (eventId) => {
         try {
-            await axios.delete(`http://localhost:5000/withdraw-event/${eventId}`, { withCredentials: true });
+            await axios.delete(`${backendUrl}/withdraw-event/${eventId}`, { withCredentials: true });
             setUserEvents(userEvents.filter(event => event.event_id !== eventId));
         } catch (error) {
             console.error('Error withdrawing from event:', error);
@@ -58,8 +59,8 @@ function MyEvents_Workshops() {
     return (
         <>
         <ArrowHeader title="My Workshops & Events" />
-            <div>
-                <div>
+            <div className='.workshops-events-container'>
+                <div >
                     <h2 className='h2-workshop-events'>My Workshops</h2>
                     {userWorkshops.length > 0 ? (
                         userWorkshops.map((workshop, index) => (
