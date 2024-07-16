@@ -1,0 +1,124 @@
+.profile-flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 40px;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+.info-container {
+  flex: 1.5;
+  font-size: 1rem;
+  color: rgb(84, 37, 20);
+  padding-left: 20px;
+  line-height: 1.5;
+}
+
+.info-container p {
+  margin: 5px 0;
+}
+
+.icons-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e7cbcb;
+}
+
+.icons-container a {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  color: #bb5a5a;
+  margin: 0 20px;
+}
+
+.icons-container i {
+  font-size: 2rem;
+  margin-right: 5px;
+}
+
+.logout-icon {
+  color: #bb5a5a;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-save-button{
+background-color: #bb5a5a; 
+color: white; 
+padding: 10px 40px; 
+border: none; 
+border-radius: 5px; 
+cursor: pointer; 
+font-size: 15px;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.input-edit{
+color: #551b1b; 
+background-color: white; 
+padding: 5px; 
+border: 1px solid #bb5a5a;  
+border-radius: 5px; 
+font-size: 15px;
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 10px;
+}
+
+.form-grid-container {
+display: grid;
+grid-template-columns: 1fr 1fr; 
+}
+
+.button-container-acc{
+align-items:baseline;
+padding-right: 100px;
+}
+
+
+@media screen and (max-width: 480px) {
+  .icons-container{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+  }
+
+  .icons-container a{
+    margin-bottom: 5px;
+  }
+
+  .icons-container i{
+    font-size: 25px;
+  }
+
+  .profile-flex-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}

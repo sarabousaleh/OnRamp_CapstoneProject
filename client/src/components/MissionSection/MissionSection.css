@@ -1,0 +1,79 @@
+.mission-container {
+  background: #eaceb4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: max-content;
+  color: #bb5a5a;
+  padding: 40px;
+  background-image: radial-gradient(circle, #f9e9e4 0.5px, transparent 0.5px);
+  background-size: 10px 10px;
+}
+
+.mission-container a {
+  text-decoration: none;
+}
+
+.mission-container p {
+  text-align: center;
+  padding-left: 40px;
+  padding-right: 40px;
+  color: rgb(84, 37, 20);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+  .mission-container {
+    padding: 20px; /* Adjust padding for smaller screens */
+  }
+
+  .mission-container p {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+.contact-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch; /* Ensure all children are stretched to the same height */
+}
+
+.contact {
+  background: #f9e9e4;
+  color: #e79e85;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  box-shadow: 0 2px 5px #e79e85;
+  padding: 10px;
+  width: 300px;
+  text-align: center;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensure content is evenly spaced */
+  height: 250px; /* Set a fixed height */
+}
+
+.contact h2 {
+  margin-bottom: 10px;
+}
+
+.contact p {
+  margin: 0;
+  flex-grow: 1; /* Ensure description text takes up available space */
+}
+
+@media screen and (max-width: 768px) {
+  .contact {
+    width: calc(50% - 20px);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .contact {
+    width: calc(100% - 20px);
+  }
+}

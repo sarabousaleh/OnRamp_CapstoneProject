@@ -1,0 +1,20 @@
+.tips-container {
+    margin-bottom: 20px;
+}
+
+.text-container {
+    width: 60%;
+}
+
+.photo-container {
+    width: 40%;
+}
+
+.photo-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+ul {
+    padding-left: 20px;
+}

@@ -1,0 +1,28 @@
+.recommended-reading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 180px; 
+    margin: 10px;
+}
+
+.book-image {
+    width: 200px;
+    height: 300px;
+    border-radius: 5px;
+}
+
+.book-info {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.book-info h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.book-info p {
+    margin: 5px 0 0;
+    color: #666;
+}
