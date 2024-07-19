@@ -48,7 +48,7 @@ function LogInPage() {
         <div className="login-content">
           <div className="login-right">
             <img src="https://i.pinimg.com/564x/93/c9/7f/93c97ffbe12fb8b73b1ff89214585631.jpg" alt="Login Visual" className="login-image" />
-            <Link className="signin-link" to="/SignInPage">Don't have an account? Sign Up!</Link>
+            <Link className="signin-link" to="/signup">Don't have an account? Sign Up!</Link>
           </div>
           <div className="login-left">
             <form className="login-form" onSubmit={handleSubmit}>

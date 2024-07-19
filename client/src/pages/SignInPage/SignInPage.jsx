@@ -29,7 +29,7 @@ const SignupForm = () => {
             if (response.status === 200) {
                 setSuccessMessage('User registered successfully!');
                 alert('User registered successfully!');
-                navigate('/LogInPage');
+                navigate('/login');
             } else {
                 alert('Signup failed: ' + response.data.message);
             }
@@ -89,7 +89,7 @@ const SignupForm = () => {
                 <button className='signin-button' type='submit'>Sign Up</button>
                 {error && <p className="error-message">{error}</p>}
                 {successMessage && <p className="success-message">{successMessage}</p>}
-                <Link className="login-link" to="/LogInPage">Already have an account? Log In!</Link>
+                <Link className="login-link" to="/login">Already have an account? Log In!</Link>
             </form>
         </div>
     );

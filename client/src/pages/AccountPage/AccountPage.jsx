@@ -43,7 +43,7 @@ function AccountPage() {
       const response = await axios.post(`${backendUrl}/logout`, {}, { withCredentials: true });
       if (response.status === 200) {
         console.log('Logout successful');
-        navigate('/LogInPage');
+        navigate('/login');
       } else {
         console.error('Logout failed:', response.data);
       }
@@ -98,7 +98,7 @@ function AccountPage() {
       console.error('Error saving user data:', error.response ? error.response.data : error.message);
       if (error.response && error.response.status === 401) {
         alert('Session expired. Please log in again.');
-        navigate('/LogInPage');
+        navigate('/login');
       }
     }
   };
@@ -127,22 +127,22 @@ function AccountPage() {
     <>
       <h1 className="h1-design">Your Account</h1>
       <div className="icons-container">
-        <Link to="/MyJournal">
+        <Link to="/journal">
           <i className="fa fa-book"></i>
           <span>My Journal</span>
         </Link>
 
-        <Link to="/ToDoList">
+        <Link to="/todo">
           <i className="fa fa-list"></i>
           <span>My To Do List</span>
         </Link>
 
-        <Link to="/MyEvents&Workshops">
+        <Link to="/my-events-and-workshops">
           <i className="fas fa-calendar-alt"></i>
           <span>My Events & Workshops</span>
         </Link>
 
-        <Link to="/MyTherapySessions">
+        <Link to="/my-therapy-sessions">
           <i className="fa fa-heartbeat"></i>
           <span>Therapy Sessions</span>
         </Link>
