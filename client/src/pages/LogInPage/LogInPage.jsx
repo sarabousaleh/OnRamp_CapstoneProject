@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from '../../axiosConfig';
+import { useAuth } from '../../AuthProvider'; // Adjust the path as needed
 import './LogInPage.css';
 
-function LogInPage({ setIsLoggedIn }) {
+function LogInPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/account" } };
+  const { setIsLoggedIn } = useAuth();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted');
     try {
       const response = await axios.post(`${backendUrl}/login`, { username, password }, { withCredentials: true });
+      console.log('Response:', response);
+
       if (response.data.message === 'Login successful') {
         setIsLoggedIn(true);
 
@@ -32,6 +37,7 @@ function LogInPage({ setIsLoggedIn }) {
       }
     } catch (error) {
       alert('Login failed: ' + (error.response ? error.response.data.message : error.message)); // Display alert message
+      console.error('Error during login:', error);
     }
   };
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { authenticateToken } = require('./authentication');
 
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.token;

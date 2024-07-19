@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { authenticateToken } = require('./authentication');
 
 router.get('/posts', async (req, res) => {
     try {

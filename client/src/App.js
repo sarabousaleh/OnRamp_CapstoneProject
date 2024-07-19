@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import axios from '../src/axiosConfig';
 import './App.css';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -21,6 +20,7 @@ import MyEvents_Workshops from './pages/MyEvents_Workshops/MyEvents_Workshops';
 import MyTherapySessions from './pages/MyTherapySessions/MyTherapySessions';
 import TherapistDashboard from './therapist/TherapistDashboard';
 import AdminDashboard from './admin/AdminDashboard';
+import { AuthProvider, useAuth } from './AuthProvider';
 
 function Layout({ children }) {
   return (
@@ -32,53 +32,36 @@ function Layout({ children }) {
   );
 }
 
+function PrivateRoute({ children }) {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? children : <Navigate to="/LogInPage" />;
+}
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [userRole, setUserRole] = useState('');
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        console.log('Checking login status...');
-        const response = await axios.get(`${backendUrl}/user`);
-        console.log('Response from /user:', response.data);
-        if (response.data) {
-          setIsLoggedIn(true);
-          setUserRole(response.data.role); 
-        }
-      } catch (error) {
-        console.error('User not logged in:', error);
-        setIsLoggedIn(false);
-      }
-    };
-    checkLoginStatus();
-  }, [backendUrl]);
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout><HomePage /></Layout>} />
-        <Route path="/resources" element={<Layout><ResourcesPage /></Layout>} />
-        <Route path="/services" element={<Layout><ServicesPage /></Layout>} />
-        <Route path="/account" element={isLoggedIn ? <Layout><AccountPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/blogs" element={isLoggedIn ? <Layout><BlogsPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/workshops&events" element={isLoggedIn ? <Layout><EventsPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/library" element={isLoggedIn ? <Layout><LibraryPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/assessments" element={isLoggedIn ? <Layout><AssessmentsPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/therapy-sessions" element={isLoggedIn ? <Layout><TherapyPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/ToDoList" element={isLoggedIn ? <Layout><ToDoPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/MyJournal" element={isLoggedIn ? <Layout><JournalPage /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/MyEvents&Workshops" element={isLoggedIn ? <Layout><MyEvents_Workshops /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/MyTherapySessions" element={isLoggedIn ? <Layout><MyTherapySessions /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/SignInPage" element={<SignInPage />} />
-        <Route path="/LogInPage" element={<LogInPage setIsLoggedIn={setIsLoggedIn} />} />
-
-        {/* Therapist and Admin Routes */}
-        <Route path="/therapist/dashboard" element={isLoggedIn && userRole === 'therapist' ? <Layout><TherapistDashboard /></Layout> : <Navigate to="/LogInPage" />} />
-        <Route path="/admin/dashboard" element={isLoggedIn && userRole === 'admin' ? <Layout><AdminDashboard /></Layout> : <Navigate to="/LogInPage" />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/resources" element={<Layout><ResourcesPage /></Layout>} />
+          <Route path="/services" element={<Layout><ServicesPage /></Layout>} />
+          <Route path="/account" element={<PrivateRoute><Layout><AccountPage /></Layout></PrivateRoute>} />
+          <Route path="/blogs" element={<PrivateRoute><Layout><BlogsPage /></Layout></PrivateRoute>} />
+          <Route path="/workshops&events" element={<PrivateRoute><Layout><EventsPage /></Layout></PrivateRoute>} />
+          <Route path="/library" element={<PrivateRoute><Layout><LibraryPage /></Layout></PrivateRoute>} />
+          <Route path="/assessments" element={<PrivateRoute><Layout><AssessmentsPage /></Layout></PrivateRoute>} />
+          <Route path="/therapy-sessions" element={<PrivateRoute><Layout><TherapyPage /></Layout></PrivateRoute>} />
+          <Route path="/ToDoList" element={<PrivateRoute><Layout><ToDoPage /></Layout></PrivateRoute>} />
+          <Route path="/MyJournal" element={<PrivateRoute><Layout><JournalPage /></Layout></PrivateRoute>} />
+          <Route path="/MyEvents&Workshops" element={<PrivateRoute><Layout><MyEvents_Workshops /></Layout></PrivateRoute>} />
+          <Route path="/MyTherapySessions" element={<PrivateRoute><Layout><MyTherapySessions /></Layout></PrivateRoute>} />
+          <Route path="/SignInPage" element={<SignInPage />} />
+          <Route path="/LogInPage" element={<LogInPage />} />
+          <Route path="/therapist/dashboard" element={<PrivateRoute><Layout><TherapistDashboard /></Layout></PrivateRoute>} />
+          <Route path="/admin/dashboard" element={<PrivateRoute><Layout><AdminDashboard /></Layout></PrivateRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

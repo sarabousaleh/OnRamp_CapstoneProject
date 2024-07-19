@@ -1,47 +1,34 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import axios from '../src/axiosConfig';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get('/user', { withCredentials: true });
-                setUser(response.data);
-            } catch (error) {
-                console.error('Error fetching user:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
-    }, []);
-
-    const login = async (username, password) => {
-        await axios.post('/login', { username, password }, { withCredentials: true });
-        await fetchUser();
-    };
-
-    const fetchUser = async () => {
-        try {
-            const response = await axios.get('/user', { withCredentials: true });
-            setUser(response.data);
-        } catch (error) {
-            console.error('Error fetching user:', error);
-            setUser(null);
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        console.log('Checking login status...');
+        const response = await axios.get(`${backendUrl}/user`);
+        console.log('Response from /user:', response.data);
+        if (response.data) {
+          setIsLoggedIn(true);
         }
+      } catch (error) {
+        console.error('User not logged in:', error);
+        setIsLoggedIn(false);
+      }
     };
+    checkLoginStatus();
+  }, [backendUrl]);
 
-    return (
-        <AuthContext.Provider value={{ user, login, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

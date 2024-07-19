@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { authenticateToken } = require('./authentication'); // Ensure this is the correct path and function
 
 // Workshops routes
 router.get('/workshops', async (req, res) => {
@@ -87,8 +88,6 @@ router.get('/user-events', authenticateToken, async (req, res) => {
         const userEvents = await pool.query(
             `SELECT e.*, ue.enrolled_at 
              FROM events e 
-
-
              JOIN user_events ue ON e.event_id = ue.event_id 
              WHERE ue.user_id = $1`,
             [user_id]

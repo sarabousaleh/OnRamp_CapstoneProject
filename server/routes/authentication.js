@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 
-
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
@@ -20,20 +19,7 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-const authenticateAdmin = (req, res, next) => {
-    if (!req.user || !req.user.is_admin) {
-        return res.status(403).json({ message: 'Forbidden' });
-    }
-    next();
-};
-
-const authenticateTherapist = (req, res, next) => {
-    if (!req.user || !req.user.is_therapist) {
-        return res.status(403).json({ message: 'Forbidden' });
-    }
-    next();
-};
-
+module.exports = { authenticateToken };
 
 router.post('/signup', async (req, res) => {
     const { username, password_hash, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url } = req.body;
@@ -58,7 +44,6 @@ router.post('/signup', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 router.post('/login', async (req, res) => {
     try {
@@ -96,6 +81,5 @@ router.post('/login', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
 
 module.exports = router;
