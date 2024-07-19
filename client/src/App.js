@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate
+} from 'react-router-dom';
 import './App.css';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -42,23 +47,152 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout><HomePage /></Layout>} />
-          <Route path="/resources" element={<Layout><ResourcesPage /></Layout>} />
-          <Route path="/services" element={<Layout><ServicesPage /></Layout>} />
-          <Route path="/account" element={<PrivateRoute><Layout><AccountPage /></Layout></PrivateRoute>} />
-          <Route path="/blogs" element={<PrivateRoute><Layout><BlogsPage /></Layout></PrivateRoute>} />
-          <Route path="/workshops-events" element={<PrivateRoute><Layout><EventsPage /></Layout></PrivateRoute>} />
-          <Route path="/library" element={<PrivateRoute><Layout><LibraryPage /></Layout></PrivateRoute>} />
-          <Route path="/assessments" element={<PrivateRoute><Layout><AssessmentsPage /></Layout></PrivateRoute>} />
-          <Route path="/therapy-sessions" element={<PrivateRoute><Layout><TherapyPage /></Layout></PrivateRoute>} />
-          <Route path="/todo" element={<PrivateRoute><Layout><ToDoPage /></Layout></PrivateRoute>} />
-          <Route path="/journal" element={<PrivateRoute><Layout><JournalPage /></Layout></PrivateRoute>} />
-          <Route path="/my-events-and-workshops" element={<PrivateRoute><Layout><MyEvents_Workshops /></Layout></PrivateRoute>} />
-          <Route path="/my-therapy-sessions" element={<PrivateRoute><Layout><MyTherapySessions /></Layout></PrivateRoute>} />
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <HomePage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/resources"
+            element={
+              <Layout>
+                <ResourcesPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/services"
+            element={
+              <Layout>
+                <ServicesPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AccountPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/blogs"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <BlogsPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/workshops-events"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <EventsPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/library"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <LibraryPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/assessments"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AssessmentsPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/therapy-sessions"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <TherapyPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/todo"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <ToDoPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/journal"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <JournalPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-events-and-workshops"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <MyEvents_Workshops />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-therapy-sessions"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <MyTherapySessions />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
           <Route path="/signup" element={<SignInPage />} />
           <Route path="/login" element={<LogInPage />} />
-          <Route path="/therapist/dashboard" element={<PrivateRoute><Layout><TherapistDashboard /></Layout></PrivateRoute>} />
-          <Route path="/admin/dashboard" element={<PrivateRoute><Layout><AdminDashboard /></Layout></PrivateRoute>} />
+          <Route
+            path="/therapist/dashboard"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <TherapistDashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AdminDashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>

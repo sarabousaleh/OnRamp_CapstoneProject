@@ -9,7 +9,7 @@ function LogInPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { from } = location.state || { from: { pathname: "/account" } };
+  const { from } = location.state || { from: { pathname: '/account' } };
   const { setIsLoggedIn } = useAuth();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -17,7 +17,11 @@ function LogInPage() {
     e.preventDefault();
     console.log('Form submitted');
     try {
-      const response = await axios.post(`${backendUrl}/login`, { username, password }, { withCredentials: true });
+      const response = await axios.post(
+        `${backendUrl}/login`,
+        { username, password },
+        { withCredentials: true }
+      );
       console.log('Response:', response);
 
       if (response.data.message === 'Login successful') {
@@ -36,7 +40,10 @@ function LogInPage() {
         console.log('Login failed :', response.data.message); // Log to console for debugging
       }
     } catch (error) {
-      alert('Login failed: ' + (error.response ? error.response.data.message : error.message)); // Display alert message
+      alert(
+        'Login failed: ' +
+          (error.response ? error.response.data.message : error.message)
+      ); // Display alert message
       console.error('Error during login:', error);
     }
   };
@@ -47,8 +54,14 @@ function LogInPage() {
         <h1 className="h1-design">Log In</h1>
         <div className="login-content">
           <div className="login-right">
-            <img src="https://i.pinimg.com/564x/93/c9/7f/93c97ffbe12fb8b73b1ff89214585631.jpg" alt="Login Visual" className="login-image" />
-            <Link className="signin-link" to="/signup">Don't have an account? Sign Up!</Link>
+            <img
+              src="https://i.pinimg.com/564x/93/c9/7f/93c97ffbe12fb8b73b1ff89214585631.jpg"
+              alt="Login Visual"
+              className="login-image"
+            />
+            <Link className="signin-link" to="/signup">
+              Don't have an account? Sign Up!
+            </Link>
           </div>
           <div className="login-left">
             <form className="login-form" onSubmit={handleSubmit}>
@@ -70,7 +83,9 @@ function LogInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <button className="login-button" type="submit">Login</button>
+              <button className="login-button" type="submit">
+                Login
+              </button>
             </form>
           </div>
         </div>

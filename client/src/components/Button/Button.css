@@ -1,22 +1,22 @@
 .button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
-  
+
 .custom-button {
-    background-color: #bb5a5a; 
-    color: white; 
-    padding: 10px 20px; 
-    border: none; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    font-size: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #bb5a5a;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .custom-button:hover {
-    background-color: #6f2929; 
+  background-color: #6f2929;
 }

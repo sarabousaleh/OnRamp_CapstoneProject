@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Contact from '../Contact/Contact';
-import './TeamSection.css'; 
+import './TeamSection.css';
 
 function TeamSection() {
   const [team, setTeam] = useState([]);
@@ -30,8 +30,8 @@ function TeamSection() {
   }
 
   return (
-    <div className='team-container'>
-      <h1 className='h1-design'>Our Team</h1>
+    <div className="team-container">
+      <h1 className="h1-design">Our Team</h1>
       <div className="container">
         {team.map((member, index) => (
           <div key={index} className="team-member">

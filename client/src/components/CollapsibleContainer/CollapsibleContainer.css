@@ -1,71 +1,71 @@
 .collapsible-container {
-    border: 1px solid #eaceb4;
-    padding: 20px;
-    background: #eaceb4;
-    color: #973b3b;
-    overflow: hidden;
-    border-radius: 20px;
-    box-shadow: 0 2px 5px rgba(54, 6, 6, 0.1);
-    margin: 50px;
+  border: 1px solid #eaceb4;
+  padding: 20px;
+  background: #eaceb4;
+  color: #973b3b;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(54, 6, 6, 0.1);
+  margin: 50px;
 }
 
 .collapsible-container .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .collapsible-container .h2-design {
-    text-align: center;
-    color: #973b3b;
+  text-align: center;
+  color: #973b3b;
 }
 
 .collapsible-container .h2-detail {
-    color: #c78d7d;
-    text-decoration: underline;
+  color: #c78d7d;
+  text-decoration: underline;
 }
 
 .collapsible-container .content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
 }
 
 .collapsible-container.expanded .content {
-    max-height: max-content;
+  max-height: max-content;
 }
 
 .collapsible-container button {
-    background-color: #973b3b;
-    color: white;
-    border: none;
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 20px;
+  background-color: #973b3b;
+  color: white;
+  border: none;
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 20px;
 }
 
 .collapsible-container button:hover {
-    background-color: #611f1f;
+  background-color: #611f1f;
 }
 
 @media screen and (max-width: 768px) {
-    .collapsible-container {
-        margin: 20px;
-    }
+  .collapsible-container {
+    margin: 20px;
+  }
 
-    .collapsible-container .header {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .collapsible-container .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-    .dual-container {
-        display: flex;
-        margin: 20px;
-        flex-direction: column;
-    }
-        
-    .collapsible-container .h2-design,
-    .collapsible-container .h2-detail {
-        text-align: center;
-    }
+  .dual-container {
+    display: flex;
+    margin: 20px;
+    flex-direction: column;
+  }
+
+  .collapsible-container .h2-design,
+  .collapsible-container .h2-detail {
+    text-align: center;
+  }
 }

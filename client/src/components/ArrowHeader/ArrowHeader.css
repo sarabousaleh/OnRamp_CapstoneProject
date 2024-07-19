@@ -1,41 +1,41 @@
 .arrow-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 10px;
-  }
-  
-  .back-button {
-    position: absolute;
-    left: 10px;
-    top: 50%; 
-    transform: translateY(-50%); 
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding-bottom: 15px;
-  }
-  
-  .arrow-icon {
-    font-size: 36px;
-    color: #bb5a5a;
-    margin-right: 10px;
-  }
-  
-  .h1-design {
-    margin: 0;
-    color: #a44a4a;
-    text-align: center;
-    flex-grow: 1;
-  }
-  
-  @media (max-width: 768px) {
-    .back-button {
-      left: 5px; 
-    }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 10px;
+}
 
-    .h1-design{
-        font-size: 27px;
-    }
+.back-button {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-bottom: 15px;
+}
+
+.arrow-icon {
+  font-size: 36px;
+  color: #bb5a5a;
+  margin-right: 10px;
+}
+
+.h1-design {
+  margin: 0;
+  color: #a44a4a;
+  text-align: center;
+  flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+  .back-button {
+    left: 5px;
   }
+
+  .h1-design {
+    font-size: 27px;
+  }
+}

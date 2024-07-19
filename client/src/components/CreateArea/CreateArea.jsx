@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import axios from 'axios';
 import './CreateArea.css';
 
 function CreateArea(props) {
   const [note, setNote] = useState({
-    title: "",
-    content: ""
+    title: '',
+    content: ''
   });
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setNote(prevNote => ({
+    setNote((prevNote) => ({
       ...prevNote,
       [name]: value
     }));
@@ -20,11 +20,13 @@ function CreateArea(props) {
   async function submitNote(event) {
     event.preventDefault();
     try {
-      const response = await axios.post(`${backendUrl}/notes`, note, { withCredentials: true });
-      props.onAdd(response.data); 
+      const response = await axios.post(`${backendUrl}/notes`, note, {
+        withCredentials: true
+      });
+      props.onAdd(response.data);
       setNote({
-        title: "",
-        content: ""
+        title: '',
+        content: ''
       });
     } catch (error) {
       console.error('Error adding note:', error);

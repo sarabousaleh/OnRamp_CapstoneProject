@@ -1,47 +1,48 @@
 .NavBar {
-    background-color: #bb5a5a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Center items vertically */
-    padding: 10px 20px; /* Add padding for better spacing */
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  background-color: #bb5a5a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Center items vertically */
+  padding: 10px 20px; /* Add padding for better spacing */
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links .nav-link {
+  color: white;
+  text-decoration: none;
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+.nav-links .nav-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .NavBar {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    align-items: stretch; /* Stretch items to full width */
+    padding: 10px; /* Adjust padding for smaller screens */
   }
-  
+
   .nav-links {
-    display: flex;
-    align-items: center;
+    display: none; /* Hide links by default on smaller screens */
+    flex-direction: column; /* Stack links vertically on smaller screens */
+    align-items: stretch; /* Stretch links to full width */
+    margin-top: 10px; /* Add margin for better spacing */
   }
-  
+
+  .nav-links.show-links {
+    display: flex; /* Show links when the show-links class is applied */
+  }
+
   .nav-links .nav-link {
-    color: white;
-    text-decoration: none;
-    margin-right: 10px;
-    font-size: 1.1rem;
+    margin: 5px 0; /* Adjust margin for better spacing */
   }
-  
-  .nav-links .nav-link:hover {
-    text-decoration: underline;
-  }
-  
-  @media (max-width: 768px) {
-    .NavBar {
-      flex-direction: column; /* Stack items vertically on smaller screens */
-      align-items: stretch; /* Stretch items to full width */
-      padding: 10px; /* Adjust padding for smaller screens */
-    }
-  
-    .nav-links {
-      display: none; /* Hide links by default on smaller screens */
-      flex-direction: column; /* Stack links vertically on smaller screens */
-      align-items: stretch; /* Stretch links to full width */
-      margin-top: 10px; /* Add margin for better spacing */
-    }
-  
-    .nav-links.show-links {
-      display: flex; /* Show links when the show-links class is applied */
-    }
-  
-    .nav-links .nav-link {
-      margin: 5px 0; /* Adjust margin for better spacing */
-    }
-  }
+}

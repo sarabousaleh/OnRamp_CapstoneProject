@@ -64,55 +64,54 @@
   align-items: center;
 }
 
-.edit-save-button{
-background-color: #bb5a5a; 
-color: white; 
-padding: 10px 40px; 
-border: none; 
-border-radius: 5px; 
-cursor: pointer; 
-font-size: 15px;
-display: flex;
-justify-content: center;
-align-items: center;
+.edit-save-button {
+  background-color: #bb5a5a;
+  color: white;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.input-edit{
-color: #551b1b; 
-background-color: white; 
-padding: 5px; 
-border: 1px solid #bb5a5a;  
-border-radius: 5px; 
-font-size: 15px;
-display: flex;
-justify-content: center;
-align-items: center;
-margin-bottom: 10px;
+.input-edit {
+  color: #551b1b;
+  background-color: white;
+  padding: 5px;
+  border: 1px solid #bb5a5a;
+  border-radius: 5px;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .form-grid-container {
-display: grid;
-grid-template-columns: 1fr 1fr; 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-.button-container-acc{
-align-items:baseline;
-padding-right: 100px;
+.button-container-acc {
+  align-items: baseline;
+  padding-right: 100px;
 }
-
 
 @media screen and (max-width: 480px) {
-  .icons-container{
+  .icons-container {
     display: flex;
     justify-content: space-around;
     flex-direction: column;
   }
 
-  .icons-container a{
+  .icons-container a {
     margin-bottom: 5px;
   }
 
-  .icons-container i{
+  .icons-container i {
     font-size: 25px;
   }
 

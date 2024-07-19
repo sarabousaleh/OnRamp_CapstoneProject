@@ -1,136 +1,137 @@
 .journal-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #bb5a5a;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #a14646;
-    background: #f9e9e4;
-    text-align: right;
+  width: 90%;
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #bb5a5a;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #a14646;
+  background: #f9e9e4;
+  text-align: right;
 }
 
 .arrow-header {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .h1-design {
-    color: #bb5a5a;
-    margin-bottom: 20px;
+  color: #bb5a5a;
+  margin-bottom: 20px;
 }
 
 .journal-content {
-    margin: 20px;
+  margin: 20px;
 }
 
-.journal-textarea, .edit-textarea {
-    width: 97%;
-    padding: 10px;
-    border: 1px solid #bb5a5a;
-    border-radius: 5px;
-    background-color: white;
-    color: rgb(84, 37, 20);
-    resize: vertical;
+.journal-textarea,
+.edit-textarea {
+  width: 97%;
+  padding: 10px;
+  border: 1px solid #bb5a5a;
+  border-radius: 5px;
+  background-color: white;
+  color: rgb(84, 37, 20);
+  resize: vertical;
 }
 
 .save-button {
-    padding: 10px;
-    background-color: #bb5a5a;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    width: fit-content;
-    align-self: center;
+  padding: 10px;
+  background-color: #bb5a5a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  width: fit-content;
+  align-self: center;
 }
 
 .entry-list-container {
-    width: 98%;
+  width: 98%;
 }
 
 .entry-item {
-    width: calc(50% - 20px); 
-    padding: 10px;
-    border: 1px solid #bb5a5a;
-    border-radius: 5px;
-    background: #f9e9e4;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    margin: 10px;
+  width: calc(50% - 20px);
+  padding: 10px;
+  border: 1px solid #bb5a5a;
+  border-radius: 5px;
+  background: #f9e9e4;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
 }
 
 .entry-item.expanded {
-    width: calc(100% - 20px); /* Expand to full width */
+  width: calc(100% - 20px); /* Expand to full width */
 }
 
 .entry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .entry-actions {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .entry-date {
-    color: #bb5a5a;
-    margin-bottom: 5px;
+  color: #bb5a5a;
+  margin-bottom: 5px;
 }
 
 .entry-content {
-    color: rgb(84, 37, 20);
-    display: -webkit-box;
-    -webkit-line-clamp: 4; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  color: rgb(84, 37, 20);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .entry-content.expanded {
-    -webkit-line-clamp: unset;
+  -webkit-line-clamp: unset;
 }
 
 .p-journal {
-    margin: 30px;
-    color: #a14646;
+  margin: 30px;
+  color: #a14646;
 }
 
 .edit-entry {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .edit-textarea {
-    height: auto;
-    overflow: hidden;
+  height: auto;
+  overflow: hidden;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .entry-item {
-        width: calc(97% - 20px); /* For tablets and smaller screens */
-    }
+  .entry-item {
+    width: calc(97% - 20px); /* For tablets and smaller screens */
+  }
 }
 
 @media (max-width: 480px) {
-    .entry-item {
-        width: 94%; /* For phone sizes */
-        margin: 10px 0; /* Adjust margin for better spacing */
-    }
+  .entry-item {
+    width: 94%; /* For phone sizes */
+    margin: 10px 0; /* Adjust margin for better spacing */
+  }
 
-    .entry-item.expanded {
-        width: 94%; /* For phone sizes */
-    }
+  .entry-item.expanded {
+    width: 94%; /* For phone sizes */
+  }
 
-    .save-button {
-        width: 100%; /* Full width button on small screens */
-        text-align: center;
-    }
+  .save-button {
+    width: 100%; /* Full width button on small screens */
+    text-align: center;
+  }
 }

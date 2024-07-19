@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import axios from '../../axiosConfig';
-import Note from "../../components/Note/Note";
-import CreateArea from "../../components/CreateArea/CreateArea";
+import Note from '../../components/Note/Note';
+import CreateArea from '../../components/CreateArea/CreateArea';
 import { useNavigate } from 'react-router-dom';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './ToDoPage.css';
@@ -14,7 +14,9 @@ function ToDoPage() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/notes`, { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/notes`, {
+          withCredentials: true
+        });
         setNotes(response.data);
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -24,13 +26,15 @@ function ToDoPage() {
   }, []);
 
   const addNote = (newNote) => {
-    setNotes(prevNotes => [...prevNotes, newNote]);
+    setNotes((prevNotes) => [...prevNotes, newNote]);
   };
 
   const deleteNote = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/notes/${id}`, { withCredentials: true });
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+      await axios.delete(`${backendUrl}/notes/${id}`, {
+        withCredentials: true
+      });
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
     } catch (error) {
       console.error('Error deleting note:', error);
     }
@@ -40,7 +44,7 @@ function ToDoPage() {
     <div className="journal-page-container">
       <ArrowHeader title="Your To Do List" />
       <CreateArea onAdd={addNote} />
-      {notes.map(note => (
+      {notes.map((note) => (
         <Note
           key={note.id}
           id={note.id}

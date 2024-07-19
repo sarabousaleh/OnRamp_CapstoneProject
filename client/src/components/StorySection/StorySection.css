@@ -1,54 +1,53 @@
-.story-container { 
-    background: #f9e9e4;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 80vh;
-    background-image: radial-gradient(circle, #bb5a5a 0.5px, transparent 0.5px);
-    background-size: 10px 10px;
-  }
-  
-  .story-container .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    max-width: 800px;
-  }
-  
-  .story-container img {
-    border-radius: 50%;
-    width: 300px;
-    height: 300px;
-  }
-  
-  .story-container .box1{
-    flex: 1.5; 
-    text-align: center;
-    margin: 40px;
-  }
-  .story-container .box2 {
-    flex: 1; 
-    display: flex;
-    text-align: center;
-    margin: 20px;
-    margin-left: 50px;
-  }
-  
-  .story-container h1 {
-    color: #e79e85;
-    font-size: 35px;
-  }
-  
-  .story-container p {
-    color: #bb5a5a;
-    font-size: 16px;
-    line-height: 2;
-  }
+.story-container {
+  background: #f9e9e4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  background-image: radial-gradient(circle, #bb5a5a 0.5px, transparent 0.5px);
+  background-size: 10px 10px;
+}
 
-  
+.story-container .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 800px;
+}
+
+.story-container img {
+  border-radius: 50%;
+  width: 300px;
+  height: 300px;
+}
+
+.story-container .box1 {
+  flex: 1.5;
+  text-align: center;
+  margin: 40px;
+}
+.story-container .box2 {
+  flex: 1;
+  display: flex;
+  text-align: center;
+  margin: 20px;
+  margin-left: 50px;
+}
+
+.story-container h1 {
+  color: #e79e85;
+  font-size: 35px;
+}
+
+.story-container p {
+  color: #bb5a5a;
+  font-size: 16px;
+  line-height: 2;
+}
+
 @media (max-width: 600px) {
-  .story-container { 
+  .story-container {
     height: 700px;
     display: flex;
     align-items: stretch;
@@ -57,7 +56,7 @@
 
   .story-container .container {
     flex-direction: column;
-    align-items: center; 
+    align-items: center;
   }
 
   .story-container img {
@@ -68,16 +67,16 @@
 
   .story-container .box1,
   .story-container .box2 {
-    margin: 20px 0; 
-    text-align: center; 
+    margin: 20px 0;
+    text-align: center;
   }
 
   .story-container h1 {
-    font-size: 28px; 
+    font-size: 28px;
   }
 
   .story-container p {
     font-size: 14px;
-    padding: 0 20px; 
+    padding: 0 20px;
   }
 }

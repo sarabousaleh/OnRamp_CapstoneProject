@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import './MissionSection.css'; 
+import './MissionSection.css';
 import '../../App.css';
 
 function MissionSection({ title, description, contacts }) {
   return (
-    <div className='mission-container'>
-      <h1 className='h1-design'>{title}</h1>
+    <div className="mission-container">
+      <h1 className="h1-design">{title}</h1>
       <p>{description}</p>
       <div className="contact-container">
         {contacts.map((contact, index) => (
@@ -30,9 +30,9 @@ MissionSection.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       desc: PropTypes.string.isRequired,
-      link: PropTypes.string.isRequired, // Add link as a required prop
+      link: PropTypes.string.isRequired // Add link as a required prop
     })
-  ).isRequired,
+  ).isRequired
 };
 
 export default MissionSection;

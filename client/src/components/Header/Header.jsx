@@ -20,7 +20,7 @@ function Header() {
 
   return (
     <AppBar>
-      <Toolbar className='NavBar'>
+      <Toolbar className="NavBar">
         <Typography
           variant="h6"
           component={Link}
@@ -28,12 +28,13 @@ function Header() {
           sx={{
             flexGrow: 1,
             fontSize: '2.6rem',
-            fontFamily: "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
+            fontFamily:
+              "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
             color: 'inherit',
             textDecoration: 'none',
             cursor: 'pointer',
             '&:hover': {
-              textDecoration: 'underline',
+              textDecoration: 'underline'
             }
           }}
           onMouseEnter={handleMouseEnter}
@@ -43,13 +44,19 @@ function Header() {
         </Typography>
         <div className={`nav-links ${isHovered ? 'show-links' : ''}`}>
           <Button color="inherit">
-            <Link to="/services" className="nav-link">Services</Link>
+            <Link to="/services" className="nav-link">
+              Services
+            </Link>
           </Button>
           <Button color="inherit">
-            <Link to="/resources" className="nav-link">Resources</Link>
+            <Link to="/resources" className="nav-link">
+              Resources
+            </Link>
           </Button>
           <Button color="inherit">
-            <Link to="/account" className="nav-link">Account</Link>
+            <Link to="/account" className="nav-link">
+              Account
+            </Link>
           </Button>
         </div>
       </Toolbar>

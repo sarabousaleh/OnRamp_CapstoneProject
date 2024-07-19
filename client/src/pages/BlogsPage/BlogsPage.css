@@ -3,7 +3,7 @@
   justify-content: center;
 }
 
-.p-blogs{
+.p-blogs {
   color: #973b3b;
   text-align: center;
 }
@@ -23,7 +23,7 @@
   height: 350px;
   width: 350px;
   border-radius: 20px;
-  margin-right: 20px; 
+  margin-right: 20px;
   float: left;
   margin-right: 20px;
   border: 1px solid #bb5a5a;
@@ -36,10 +36,10 @@
 .content-blog h2 {
   text-align: center;
   color: #e79e85;
-  font-style: oblique; 
+  font-style: oblique;
 }
 
-.content-blog h3{
+.content-blog h3 {
   text-align: center;
   font-size: medium;
 }
@@ -100,7 +100,7 @@
   margin-top: 20px;
 }
 
-.search-container input[type="text"] {
+.search-container input[type='text'] {
   padding: 10px;
   width: 300px;
   border-radius: 5px;
@@ -137,32 +137,32 @@
   border: 1px solid #ccc;
   font-size: 16px;
   outline: none;
-  color:  #722929;
+  color: #722929;
 }
 
 .comment-input-container .comment-button {
   padding: 5px;
-  color:  #bb5a5a;
+  color: #bb5a5a;
   background-color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: -30px; 
+  margin-left: -30px;
   transition: background-color 0.3s ease;
 }
 
 .comment-input-container .comment-button:hover {
-  color:  #8d3939;
+  color: #8d3939;
 }
 
-.delete-comment-button{
+.delete-comment-button {
   padding: 5px;
-  color:  #ffffff;
+  color: #ffffff;
   background-color: #bb5a5a;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: -30px; 
+  margin-left: -30px;
   transition: background-color 0.3s ease;
   float: right;
 }
@@ -173,26 +173,26 @@
 
 @media (max-width: 768px) {
   .post {
-      width: 100%;
-      max-width: 500px;
+    width: 100%;
+    max-width: 500px;
   }
 
   .post-image {
-      width: 100%;
+    width: 100%;
   }
 
   .search-container {
-      flex-direction: column;
-      align-items: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .search-container input[type="text"] {
-      width: 100%;
-      margin-bottom: 10px;
+  .search-container input[type='text'] {
+    width: 100%;
+    margin-bottom: 10px;
   }
 
   .actions {
-      flex-direction: column;
-      align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
