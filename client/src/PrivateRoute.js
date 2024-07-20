@@ -7,11 +7,11 @@ const PrivateRoute = ({ element: Component, role }) => {
   const { isLoggedIn, userRole } = useAuth();
 
   if (!isLoggedIn) {
-    return <Navigate to="/LogInPage" />;
+    return <Navigate to="/login" />;
   }
 
   if (role && userRole !== role) {
-    return <Navigate to="/LogInPage" />;
+    return <Navigate to="/login" />;
   }
 
   return <Component />;

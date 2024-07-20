@@ -4,7 +4,7 @@ import MissionSection from '../../components/MissionSection/MissionSection';
 import StorySection from '../../components/StorySection/StorySection';
 import TeamSection from '../../components/TeamSection/TeamSection';
 
-function HomePage({ count, setCount, YOURNAME, CURRENTYEAR, customestyle }) {
+function HomePage() {
   const contacts = [
     {
       name: 'Self-Assessment Tools',

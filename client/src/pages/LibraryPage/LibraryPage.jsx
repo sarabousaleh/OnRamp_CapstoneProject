@@ -348,9 +348,9 @@ const LibraryPage = () => {
             height="280"
             src="https://www.youtube.com/embed/rkZl2gsLUp4?si=PhOWQ-aVl55MhXKV"
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowfullscreen
           ></iframe>
           <iframe
@@ -358,9 +358,9 @@ const LibraryPage = () => {
             height="280"
             src="https://www.youtube.com/embed/LnJwH_PZXnM?si=83GdSImECw24ap4L"
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowfullscreen
           ></iframe>
         </div>
@@ -370,9 +370,9 @@ const LibraryPage = () => {
             height="280"
             src="https://www.youtube.com/embed/qN8fzqw1WAk?si=AJ1G9RNSYq-SwEuL"
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowfullscreen
           ></iframe>
           <iframe
@@ -380,9 +380,9 @@ const LibraryPage = () => {
             height="280"
             src="https://www.youtube.com/embed/gHHTeycXcFg?si=5xKqGnFDtjLLCkhR"
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowfullscreen
           ></iframe>
         </div>

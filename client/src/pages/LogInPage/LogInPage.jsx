@@ -41,9 +41,8 @@ function LogInPage() {
       }
     } catch (error) {
       alert(
-        'Login failed: ' +
-          (error.response ? error.response.data.message : error.message)
-      ); // Display alert message
+        `Login failed: ${error.response ? error.response.data.message : error.message}`
+      );
       console.error('Error during login:', error);
     }
   };
