@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faArrowLeft,
-  faTrashAlt,
-  faEdit
-} from '@fortawesome/free-solid-svg-icons';
+import { faTrashAlt, faEdit } from '@fortawesome/free-solid-svg-icons';
 import axios from '../../axiosConfig';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
-import { useNavigate } from 'react-router-dom';
 import './JournalPage.css';
 
 const JournalPage = () => {
@@ -16,7 +11,6 @@ const JournalPage = () => {
   const [expandedEntry, setExpandedEntry] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
   const [editedContent, setEditedContent] = useState('');
-  const navigate = useNavigate();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {

@@ -23,8 +23,6 @@ import SignInPage from './pages/SignInPage/SignInPage';
 import LogInPage from './pages/LogInPage/LogInPage';
 import MyEvents_Workshops from './pages/MyEvents_Workshops/MyEvents_Workshops';
 import MyTherapySessions from './pages/MyTherapySessions/MyTherapySessions';
-import TherapistDashboard from './therapist/TherapistDashboard';
-import AdminDashboard from './admin/AdminDashboard';
 import { AuthProvider, useAuth } from './AuthProvider';
 
 function Layout({ children }) {
@@ -173,26 +171,6 @@ function App() {
           />
           <Route path="/signup" element={<SignInPage />} />
           <Route path="/login" element={<LogInPage />} />
-          <Route
-            path="/therapist/dashboard"
-            element={
-              <PrivateRoute>
-                <Layout>
-                  <TherapistDashboard />
-                </Layout>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/dashboard"
-            element={
-              <PrivateRoute>
-                <Layout>
-                  <AdminDashboard />
-                </Layout>
-              </PrivateRoute>
-            }
-          />
         </Routes>
       </Router>
     </AuthProvider>

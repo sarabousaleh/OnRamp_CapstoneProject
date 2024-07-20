@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from '../../axiosConfig';
 import Note from '../../components/Note/Note';
 import CreateArea from '../../components/CreateArea/CreateArea';
-import { useNavigate } from 'react-router-dom';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './ToDoPage.css';
 
 function ToDoPage() {
   const [notes, setNotes] = useState([]);
-  const navigate = useNavigate();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {

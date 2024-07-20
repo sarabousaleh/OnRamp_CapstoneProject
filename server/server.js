@@ -70,7 +70,7 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
-        const user = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const user = await pool.query('SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE username = $1', [username]);
         if (user.rows.length > 0) {
             return res.status(400).json({ message: 'Username already exists' });
         }
@@ -89,7 +89,7 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        const user = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const user = await pool.query('SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE username = $1', [username]);
 
         if (user.rows.length === 0) {
             return res.status(401).json({ message: 'Invalid username or password' });
@@ -127,7 +127,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [req.user.user_id]);
+        const user = await pool.query('SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE user_id = $1', [req.user.user_id]);
         res.json(user.rows[0]);
     } catch (err) {
         console.error('Server error:', err);
@@ -141,17 +141,6 @@ app.post('/logout', (req, res) => {
     console.log('Cookie cleared');
     res.json({ message: 'Logout successful' });
 });
-
-app.get('/admin/users', authenticateToken, authenticateAdmin,authenticateTherapist, async (req, res) => {
-    try {
-        const users = await pool.query('SELECT * FROM users');
-        res.json(users.rows);
-    } catch (err) {
-        console.error('Server error:', err);
-        res.status(500).send('Server error');
-    }
-});
-
 
 // Notes routes
 app.post('/notes', authenticateToken, async (req, res) => {
@@ -170,7 +159,7 @@ app.post('/notes', authenticateToken, async (req, res) => {
 
 app.get('/notes', authenticateToken, async (req, res) => {
     try {
-        const notes = await pool.query('SELECT * FROM notes WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
+        const notes = await pool.query('SELECT id, username, title, content,created_at FROM notes WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
         res.json(notes.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -188,86 +177,6 @@ app.delete('/notes/:id', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
-// // User routes
-// app.post('/signup', async (req, res) => {
-//     const { username, password_hash, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url } = req.body;
-
-//     if (!username || !password_hash || !firstname || !lastname || !dob || !gender || !email || !nationality || !telephoneNumber) {
-//         return res.status(400).json({ message: 'All fields are required' });
-//     }
-
-//     try {
-//         const user = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-//         if (user.rows.length > 0) {
-//             return res.status(400).json({ message: 'Username already exists' });
-//         }
-//         const hashedPassword = await bcrypt.hash(password_hash, 10);
-//         await pool.query(
-//             'INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers, profile_image_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-//             [username, hashedPassword, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url]
-//         );
-//         res.status(200).json({ message: 'User created successfully' });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// });
-
-// app.post('/login', async (req, res) => {
-//     try {
-//         const { username, password } = req.body;
-//         const user = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-
-//         if (user.rows.length === 0) {
-//             return res.status(401).json({ message: 'Invalid username or password' });
-//         }
-
-//         const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
-//         if (!validPassword) {
-//             return res.status(401).json({ message: 'Invalid username or password' });
-//         }
-
-//         const token = jwt.sign(
-//             {
-//                 user_id: user.rows[0].user_id,
-//                 username: user.rows[0].username,
-//                 is_admin: user.rows[0].is_admin,
-//                 is_therapist: user.rows[0].is_therapist
-//             },
-//             process.env.JWT_SECRET,
-//             { expiresIn: '7d' }
-//         );
-//         res.cookie('token', token, {
-//             httpOnly: true,
-//             sameSite: 'Strict',
-//             maxAge: 7 * 24 * 60 * 60 * 1000 
-//         });
-
-//         res.json({ message: 'Login successful' });
-//     } catch (err) {
-//         console.error('Server error:', err);
-//         res.status(500).send('Server error');
-//     }
-// });
-
-
-// app.get('/user', authenticateToken, async (req, res) => {
-//     try {
-//         const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [req.user.user_id]);
-//         res.json(user.rows[0]);
-//     } catch (err) {
-//         console.error('Server error:', err);
-//         res.status(500).send('Server error');
-//     }
-// });
-
-// app.post('/logout', (req, res) => {
-//     console.log('Logout request received');
-//     res.clearCookie('token', { httpOnly: true, sameSite: 'Strict' });
-//     console.log('Cookie cleared');
-//     res.json({ message: 'Logout successful' });
-// });
 
 app.post('/update_user', authenticateToken, async (req, res) => {
     try {
@@ -297,12 +206,11 @@ app.post('/update_user', authenticateToken, async (req, res) => {
     }
 });
 
-
 // Workshops routes
 app.get('/workshops', async (req, res) => {
     try {
         const workshops = await pool.query(`
-            SELECT w.*, t.name AS therapist_name 
+            SELECT w.workshop_id, w.user_id, w.title, w.description, w.scheduled_at, w.duration_minutes, w.cost, w.created_at, w.img_url, w.therapist_id, w.activities, w.target_audience, w.location, t.name AS therapist_name 
             FROM workshops w 
             JOIN therapists t ON w.therapist_id = t.therapist_id
             WHERE w.deleted_at IS NULL
@@ -318,7 +226,7 @@ app.get('/user-workshops', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
         const userWorkshops = await pool.query(
-            `SELECT w.*, uw.enrolled_at 
+            `SELECT w.workshop_id, w.user_id, w.title, w.description, w.scheduled_at, w.duration_minutes, w.cost, w.created_at, w.img_url, w.therapist_id, w.activities, w.target_audience, w.location, uw.enrolled_at 
              FROM workshops w 
              JOIN user_workshops uw ON w.workshop_id = uw.workshop_id 
              WHERE uw.user_id = $1`,
@@ -369,7 +277,7 @@ app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res)
 // Events routes
 app.get('/events', async (req, res) => {
     try {
-        const events = await pool.query('SELECT * FROM events');
+        const events = await pool.query('SELECT event_id, user_id, title, description, scheduled_at, duration_minutes, cost, created_at, status, img_url, location FROM events');
         res.json(events.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -381,7 +289,7 @@ app.get('/user-events', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
         const userEvents = await pool.query(
-            `SELECT e.*, ue.enrolled_at 
+            `SELECT e.event_id, e.user_id, e.title, e.description, e.scheduled_at, e.duration_minutes, e.cost, e.created_at, e.status, e.img_url, e.location, ue.enrolled_at 
              FROM events e 
 
 
@@ -399,8 +307,12 @@ app.get('/user-events', authenticateToken, async (req, res) => {
 
 app.post('/register-event/:eventId', authenticateToken, async (req, res) => {
     try {
-        const { user_id } = req.user;
-        const { eventId } = req.params;
+        const { user_id } = req.user; 
+        const eventId = parseInt(req.params.eventId, 10);
+
+        if (!user_id || isNaN(eventId)) {
+            return res.status(400).send('Invalid user ID or event ID');
+        }
 
         const result = await pool.query(
             'INSERT INTO user_events (user_id, event_id, enrolled_at) VALUES ($1, $2, NOW()) RETURNING *',
@@ -413,6 +325,7 @@ app.post('/register-event/:eventId', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 app.delete('/withdraw-event/:eventId', authenticateToken, async (req, res) => {
     try {
@@ -449,7 +362,7 @@ app.post('/journal_entries', authenticateToken, async (req, res) => {
 
 app.get('/journal_entries', authenticateToken, async (req, res) => {
     try {
-        const journalEntries = await pool.query('SELECT * FROM journal_entries WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
+        const journalEntries = await pool.query('SELECT id, username, content, created_at FROM journal_entries WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
         res.json(journalEntries.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -468,51 +381,12 @@ app.delete('/journal_entries/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-// app.get('/forums', async (req, res) => {
-//     try {
-//         const forums = await pool.query('SELECT * FROM forums');
-//         res.json(forums.rows);
-//     } catch (err) {
-//         console.error('Error fetching forums:', err.message);
-//         res.status(500).json({ error: 'Server error while fetching forums' });
-//     }
-// });
-
-// app.get('/forums/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const forum = await pool.query('SELECT * FROM forums WHERE forum_id = $1', [id]);
-
-//         if (forum.rows.length === 0) {
-//             return res.status(404).json({ error: 'Forum not found' });
-//         }
-
-//         res.json(forum.rows[0]);
-//     } catch (err) {
-//         console.error('Error fetching forum:', err.message);
-//         res.status(500).json({ error: 'Server error while fetching forum' });
-//     }
-// });
-
-// app.get('/forums/:id/posts', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const posts = await pool.query('SELECT * FROM posts WHERE forum_id = $1', [id]);
-//         res.json(posts.rows);
-//     } catch (err) {
-//         console.error('Error fetching posts:', err.message);
-//         res.status(500).json({ error: 'Server error while fetching posts' });
-//     }
-// });
-// Change the existing posts route to fetch all posts
-// Modify the existing posts route to fetch all posts
 app.get('/posts', async (req, res) => {
     try {
         const query = `
-            SELECT posts.*, therapists.name AS therapist_name
-            FROM posts
-            JOIN therapists ON posts.therapist_id = therapists.therapist_id
+            SELECT p.post_id, p.title, p.content, p.created_at, p.updated_at, p.image_url, p.therapist_id, therapists.name AS therapist_name
+            FROM posts p
+            JOIN therapists ON p.therapist_id = therapists.therapist_id
         `;
         const posts = await pool.query(query);
         res.json(posts.rows);
@@ -522,14 +396,12 @@ app.get('/posts', async (req, res) => {
     }
 });
 
-
-
 // Add a new endpoint for searching posts by title
 app.get('/search-posts', async (req, res) => {
     const { title } = req.query;
     try {
         const searchQuery = `
-            SELECT * 
+            SELECT post_id, title, content, created_at, updated_at, image_url, therapist_id 
             FROM posts 
             WHERE LOWER(title) LIKE $1
         `;
@@ -545,7 +417,7 @@ app.get('/search-posts', async (req, res) => {
 // Blog routes
 app.get('/posts', async (req, res) => {
     try {
-        const posts = await pool.query('SELECT * FROM posts ORDER BY created_at DESC');
+        const posts = await pool.query('SELECT post_id, title, content, created_at, updated_at, image_url, therapist_id FROM posts ORDER BY created_at DESC');
         res.json(posts.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -577,7 +449,7 @@ app.get('/posts/:id/comments', async (req, res) => {
     try {
         const { id } = req.params;
         const comments = await pool.query(
-            `SELECT c.*, u.username FROM comments c
+            `SELECT c.comment_id, c.post_id, c.user_id, c.content, c.created_at, c.updated_at, u.username FROM comments c
              JOIN users u ON c.user_id = u.user_id
              WHERE c.post_id = $1
              ORDER BY c.created_at DESC`,
@@ -636,7 +508,7 @@ app.post('/posts/:id/like', authenticateToken, async (req, res) => {
 app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const likes = await pool.query('SELECT * FROM likes WHERE post_id = $1', [id]);
+        const likes = await pool.query('SELECT like_id, post_id, user_id, created_at, status FROM likes WHERE post_id = $1', [id]);
         res.json(likes.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -647,7 +519,7 @@ app.get('/posts/:id/likes', authenticateToken, async (req, res) => {
 app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const like = await pool.query('SELECT * FROM likes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
+        const like = await pool.query('SELECT like_id, post_id, user_id, created_at, status FROM likes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
         res.json({ liked: like.rows.length > 0 });
     } catch (err) {
         console.error('Server error:', err);
@@ -655,12 +527,9 @@ app.get('/posts/:id/liked', authenticateToken, async (req, res) => {
     }
 });
 
-
-
 app.post('/posts/:id/dislike', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
-
     try {
         if (status) {
             await pool.query(
@@ -684,12 +553,10 @@ app.post('/posts/:id/dislike', authenticateToken, async (req, res) => {
     }
 });
 
-
-
 app.get('/posts/:id/dislikes', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const dislikes = await pool.query('SELECT * FROM dislikes WHERE post_id = $1', [id]);
+        const dislikes = await pool.query('SELECT dislike_id, post_id, user_id, created_at FROM dislikes WHERE post_id = $1', [id]);
         res.json(dislikes.rows);
     } catch (err) {
         console.error('Server error:', err);
@@ -700,7 +567,7 @@ app.get('/posts/:id/dislikes', authenticateToken, async (req, res) => {
 app.get('/posts/:id/disliked', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const dislike = await pool.query('SELECT * FROM dislikes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
+        const dislike = await pool.query('SELECT dislike_id, post_id, user_id, created_at FROM dislikes WHERE post_id = $1 AND user_id = $2', [id, req.user.user_id]);
         res.json({ disliked: dislike.rows.length > 0 });
     } catch (err) {
         console.error('Server error:', err);
@@ -708,14 +575,11 @@ app.get('/posts/:id/disliked', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
 // Endpoint to fetch all therapists with their availability
 app.get('/therapists', async (req, res) => {
     try {
-        const therapists = await pool.query('SELECT * FROM therapists');
-        const availability = await pool.query('SELECT * FROM therapist_availability');
+        const therapists = await pool.query('SELECT therapist_id, name, specialization, location, virtual_available, in_person_available, created_at, image_url, about FROM therapists');
+        const availability = await pool.query('SELECT availability_id, therapist_id, day_of_week, start_time, end_time, is_online, is_in_office, availability_date FROM therapist_availability');
         const bookedSessions = await pool.query('SELECT therapist_id, appointment_time FROM therapist_sessions');
 
         const bookedTimes = bookedSessions.rows.map(session => ({
@@ -891,7 +755,7 @@ app.get('/user-booked-therapists', authenticateToken, async (req, res) => {
 
 app.get('/assessments', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM Assessments');
+        const result = await pool.query('SELECT assessment_id, name, description FROM Assessments');
         res.json(result.rows);
     } catch (err) {
         console.error('Error fetching assessments:', err.message);
@@ -904,7 +768,7 @@ app.get('/assessments/:assessmentId', authenticateToken, async (req, res) => {
 
     try {
         const questions = await pool.query(
-            'SELECT * FROM questions WHERE assessment_id = $1',
+            'SELECT question_id, assessment_id, question_text FROM questions WHERE assessment_id = $1',
             [assessmentId]
         );
 
@@ -914,7 +778,7 @@ app.get('/assessments/:assessmentId', authenticateToken, async (req, res) => {
         }
 
         const options = await pool.query(
-            'SELECT * FROM options WHERE question_id = ANY($1::int[])',
+            'SELECT option_id, question_id, option_text, score FROM options WHERE question_id = ANY($1::int[])',
             [questionIds]
         );
 
@@ -929,7 +793,6 @@ app.get('/assessments/:assessmentId', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching questions and options' });
     }
 });
-
 
 app.post('/submit-assessment', authenticateToken, async (req, res) => {
     const { user_id } = req.user;

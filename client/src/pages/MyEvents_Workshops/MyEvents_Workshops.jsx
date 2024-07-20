@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../axiosConfig';
-import { Link, useNavigate } from 'react-router-dom';
 import ArrowHeader from '../../components/ArrowHeader/ArrowHeader';
 import './MyEvents_Workshops.css';
 
 function MyEvents_Workshops() {
-  const navigate = useNavigate();
-  const goBack = () => {
-    navigate(-1);
-  };
-
   const [userWorkshops, setUserWorkshops] = useState([]);
   const [userEvents, setUserEvents] = useState([]);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;

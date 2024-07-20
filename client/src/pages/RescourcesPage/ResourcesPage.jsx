@@ -14,7 +14,7 @@ function ResourcesPage() {
     {
       name: 'Workshops & Events',
       desc: 'Join live workshops and events focused on stress management, resilience building, and emotional intelligence. Participate in interactive sessions to enhance your mental well-being.',
-      link: '/workshops&events',
+      link: '/workshops-events',
       imageUrl:
         'https://i.pinimg.com/564x/68/0e/7e/680e7efdfa136047e7f29fde5b54ecd0.jpg'
     },

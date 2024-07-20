@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faLaptopMedical,
@@ -10,7 +10,7 @@ import './TherapyPage.css';
 
 const TherapyPage = () => {
   const [therapists, setTherapists] = useState([]);
-  const [bookedTherapists, setBookedTherapists] = useState([]);
+  const [setBookedTherapists] = useState([]);
   const [selectedTherapist, setSelectedTherapist] = useState('');
   const [availableTimes, setAvailableTimes] = useState([]);
   const [appointmentTime, setAppointmentTime] = useState('');
@@ -19,8 +19,6 @@ const TherapyPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalTherapist, setModalTherapist] = useState(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
