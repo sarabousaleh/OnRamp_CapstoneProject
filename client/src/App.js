@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -9,7 +10,7 @@ import './App.css';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import HomePage from './pages/HomePage/HomePage';
-import ResourcesPage from './pages/RescourcesPage/ResourcesPage';
+import ResourcesPage from './pages/ResourcesPage/ResourcesPage';
 import ServicesPage from './pages/ServicesPage/ServicesPage';
 import AccountPage from './pages/AccountPage/AccountPage';
 import BlogsPage from './pages/BlogsPage/BlogsPage';
