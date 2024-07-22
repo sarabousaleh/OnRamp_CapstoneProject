@@ -59,7 +59,7 @@ function LogInPage() {
               className="login-image"
             />
             <Link className="signin-link" to="/signup">
-              Don't have an account? Sign Up!
+              Do not have an account? Sign Up!
             </Link>
           </div>
           <div className="login-left">

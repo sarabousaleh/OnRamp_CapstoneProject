@@ -46,21 +46,42 @@ const authenticateToken = (req, res, next) => {
     });
   };
   
-
-
-const authenticateAdmin = (req, res, next) => {
-    if (!req.user || !req.user.is_admin) {
-        return res.status(403).json({ message: 'Forbidden' });
-    }
-    next();
-};
-
-const authenticateTherapist = (req, res, next) => {
-    if (!req.user || !req.user.is_therapist) {
-        return res.status(403).json({ message: 'Forbidden' });
-    }
-    next();
-};
+/**
+ * @api {post} /signup Sign up a new user
+ * @apiName SignUp
+ * @apiGroup Users
+ * 
+ * @apiParam {String} username User's username.
+ * @apiParam {String} password User's password.
+ * @apiParam {String} firstname User's first name.
+ * @apiParam {String} lastname User's last name.
+ * @apiParam {String} dob User's date of birth.
+ * @apiParam {String} gender User's gender.
+ * @apiParam {String} email User's email address.
+ * @apiParam {String} nationality User's nationality.
+ * @apiParam {String} telephoneNumber User's telephone number.
+ * @apiParam {String} [profile_image_url] URL of the user's profile image.
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "User created successfully"
+ *     }
+ * 
+ * @apiError BadRequest The request is missing required fields.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message": "All fields are required"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.post('/signup', async (req, res) => {
     const { username, password, firstname, lastname, dob, gender, email, nationality, telephoneNumber, profile_image_url } = req.body;
@@ -85,6 +106,36 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+/**
+ * @api {post} /login Log in a user
+ * @apiName LogIn
+ * @apiGroup Users
+ * 
+ * @apiParam {String} username User's username.
+ * @apiParam {String} password User's password.
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccess {String} token JWT token for authentication.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Login successful"
+ *     }
+ * 
+ * @apiError Unauthorized Invalid username or password.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Invalid username or password"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.post('/login', async (req, res) => {
     try {
@@ -125,6 +176,45 @@ app.post('/login', async (req, res) => {
     }
 });
 
+/**
+ * @api {get} /user Get user profile
+ * @apiName GetUser
+ * @apiGroup Users
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object} user User profile information.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *         "user_id": "1",
+ *         "username": "john_doe",
+ *         "firstname": "John",
+ *         "lastname": "Doe",
+ *         "dob": "1990-01-01",
+ *         "gender": "Male",
+ *         "email": "john.doe@example.com",
+ *         "nationality": "American",
+ *         "telephone_numbers": "123-456-7890",
+ *         "profile_image_url": "http://example.com/image.jpg"
+ *       }
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
+
 app.get('/user', authenticateToken, async (req, res) => {
     try {
         const user = await pool.query('SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE user_id = $1', [req.user.user_id]);
@@ -135,12 +225,61 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * @api {post} /logout Log out a user
+ * @apiName LogOut
+ * @apiGroup Users
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Logout successful"
+ *     }
+ */
+
 app.post('/logout', (req, res) => {
     console.log('Logout request received');
     res.clearCookie('token', { httpOnly: true, sameSite: 'Strict' });
     console.log('Cookie cleared');
     res.json({ message: 'Logout successful' });
 });
+
+/**
+ * @api {post} /notes Create a new note
+ * @apiName CreateNote
+ * @apiGroup Notes
+ * 
+ * @apiParam {String} title Title of the note.
+ * @apiParam {String} content Content of the note.
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object} note Created note object.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "note": {
+ *         "id": "1",
+ *         "username": "john_doe",
+ *         "title": "Sample Note",
+ *         "content": "This is a sample note."
+ *       }
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 // Notes routes
 app.post('/notes', authenticateToken, async (req, res) => {
@@ -157,6 +296,39 @@ app.post('/notes', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * @api {get} /notes Get all notes for a user
+ * @apiName GetNotes
+ * @apiGroup Notes
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object[]} notes List of notes for the user.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "id": "1",
+ *         "username": "john_doe",
+ *         "title": "Sample Note",
+ *         "content": "This is a sample note."
+ *       }
+ *     ]
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
+
 app.get('/notes', authenticateToken, async (req, res) => {
     try {
         const notes = await pool.query('SELECT id, username, title, content,created_at FROM notes WHERE username = $1 ORDER BY created_at DESC', [req.user.username]);
@@ -166,6 +338,36 @@ app.get('/notes', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+/**
+ * @api {delete} /notes/:id Delete a note
+ * @apiName DeleteNote
+ * @apiGroup Notes
+ * 
+ * @apiParam {String} id ID of the note to be deleted.
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Note deleted successfully"
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.delete('/notes/:id', authenticateToken, async (req, res) => {
     try {
@@ -177,6 +379,56 @@ app.delete('/notes/:id', authenticateToken, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+/**
+ * @api {post} /update_user Update user profile
+ * @apiName UpdateUser
+ * @apiGroup Users
+ * 
+ * @apiParam {String} username New username.
+ * @apiParam {String} firstname New first name.
+ * @apiParam {String} lastname New last name.
+ * @apiParam {String} email New email address.
+ * @apiParam {String} gender New gender.
+ * @apiParam {String} nationality New nationality.
+ * @apiParam {String} [profile_image_url] New profile image URL.
+ * @apiParam {String} dob New date of birth.
+ * @apiParam {String} telephone_number New telephone number.
+ * @apiParam {String} [password] New password.
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object} user Updated user profile information.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "user": {
+ *         "user_id": "1",
+ *         "username": "john_doe",
+ *         "firstname": "John",
+ *         "lastname": "Doe",
+ *         "dob": "1990-01-01",
+ *         "gender": "Male",
+ *         "email": "john.doe@example.com",
+ *         "nationality": "American",
+ *         "telephone_numbers": "123-456-7890",
+ *         "profile_image_url": "http://example.com/image.jpg"
+ *       }
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.post('/update_user', authenticateToken, async (req, res) => {
     try {
@@ -206,6 +458,41 @@ app.post('/update_user', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * @api {get} /workshops Get all workshops
+ * @apiName GetWorkshops
+ * @apiGroup Workshops
+ * 
+ * @apiSuccess {Object[]} workshops List of all workshops.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "workshop_id": "1",
+ *         "user_id": "1",
+ *         "title": "Workshop Title",
+ *         "description": "Workshop Description",
+ *         "scheduled_at": "2024-08-01T10:00:00Z",
+ *         "duration_minutes": 60,
+ *         "cost": 50,
+ *         "created_at": "2024-07-22T00:00:00Z",
+ *         "img_url": "http://example.com/image.jpg",
+ *         "therapist_id": "1",
+ *         "activities": "Activity Details",
+ *         "target_audience": "Target Audience",
+ *         "location": "Workshop Location",
+ *         "therapist_name": "Therapist Name"
+ *       }
+ *     ]
+ * 
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
+
 // Workshops routes
 app.get('/workshops', async (req, res) => {
     try {
@@ -221,6 +508,49 @@ app.get('/workshops', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+/**
+ * @api {get} /user-workshops Get user workshops
+ * @apiName GetUserWorkshops
+ * @apiGroup Workshops
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object[]} workshops List of workshops the user is enrolled in.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "workshop_id": "1",
+ *         "user_id": "1",
+ *         "title": "Workshop Title",
+ *         "description": "Workshop Description",
+ *         "scheduled_at": "2024-08-01T10:00:00Z",
+ *         "duration_minutes": 60,
+ *         "cost": 50,
+ *         "created_at": "2024-07-22T00:00:00Z",
+ *         "img_url": "http://example.com/image.jpg",
+ *         "therapist_id": "1",
+ *         "activities": "Activity Details",
+ *         "target_audience": "Target Audience",
+ *         "location": "Workshop Location",
+ *         "enrolled_at": "2024-07-22T00:00:00Z"
+ *       }
+ *     ]
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.get('/user-workshops', authenticateToken, async (req, res) => {
     try {
@@ -240,6 +570,40 @@ app.get('/user-workshops', authenticateToken, async (req, res) => {
     }
 });
 
+/**
+ * @api {post} /register-workshop/:workshopId Register for a workshop
+ * @apiName RegisterWorkshop
+ * @apiGroup Workshops
+ * 
+ * @apiParam {String} workshopId ID of the workshop to register for.
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {Object} registration Registration details.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "registration": {
+ *         "user_id": "1",
+ *         "workshop_id": "1",
+ *         "enrolled_at": "2024-07-22T00:00:00Z"
+ *       }
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
+
 app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) => {
     try {
         const { user_id } = req.user;
@@ -256,6 +620,36 @@ app.post('/register-workshop/:workshopId', authenticateToken, async (req, res) =
         res.status(500).send('Server error');
     }
 });
+
+/**
+ * @api {delete} /withdraw-workshop/:workshopId Withdraw from a workshop
+ * @apiName WithdrawWorkshop
+ * @apiGroup Workshops
+ * 
+ * @apiParam {String} workshopId ID of the workshop to withdraw from.
+ * 
+ * @apiHeader {String} Cookie JWT token for authentication.
+ * 
+ * @apiSuccess {String} message Success message.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Successfully withdrawn from the workshop"
+ *     }
+ * 
+ * @apiError Unauthorized User is not authenticated.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ *       "message": "Unauthorized"
+ *     }
+ * @apiError ServerError Internal server error.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Server error"
+ *     }
+ */
 
 app.delete('/withdraw-workshop/:workshopId', authenticateToken, async (req, res) => {
     try {
