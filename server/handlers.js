@@ -1,0 +1,242 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const pool = require("./db");
+
+const authenticateToken = (req, res, next) => {
+  const token = req.cookies.token;
+  console.log("Token from cookies:", token);
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.error("Token verification failed:", err);
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    console.log("Authenticated user:", user);
+    req.user = user;
+    next();
+  });
+};
+
+const signupHandler = async (req, res) => {
+  const {
+    username,
+    password,
+    firstname,
+    lastname,
+    dob,
+    gender,
+    email,
+    nationality,
+    telephoneNumber,
+    profile_image_url,
+  } = req.body;
+
+  if (
+    !username ||
+    !password ||
+    !firstname ||
+    !lastname ||
+    !dob ||
+    !gender ||
+    !email ||
+    !nationality ||
+    !telephoneNumber
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const user = await pool.query(
+      "SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE username = $1",
+      [username]
+    );
+    if (user.rows.length > 0) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query(
+      "INSERT INTO users (username, password_hash, firstname, lastname, dob, gender, email, nationality, telephone_numbers, profile_image_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+      [
+        username,
+        hashedPassword,
+        firstname,
+        lastname,
+        dob,
+        gender,
+        email,
+        nationality,
+        telephoneNumber,
+        profile_image_url
+      ]
+    );
+    res.status(200).json({ message: "User created successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const loginHandler = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await pool.query(
+      "SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    const token = jwt.sign(
+      {
+        user_id: user.rows[0].user_id,
+        username: user.rows[0].username,
+        is_admin: user.rows[0].is_admin,
+        is_therapist: user.rows[0].is_therapist,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "10m" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
+      maxAge: 15 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: "Login successful" });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+const getUserHandler = async (req, res) => {
+  try {
+    const user = await pool.query(
+      "SELECT user_id, username, firstname, lastname, dob, password_hash, gender, email, nationality, telephone_numbers, profile_image_url FROM users WHERE user_id = $1",
+      [req.user.user_id]
+    );
+    res.json(user.rows[0]);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+const logoutHandler = (req, res) => {
+  console.log("Logout request received");
+  res.clearCookie("token", { httpOnly: true, sameSite: "Strict" });
+  console.log("Cookie cleared");
+  res.json({ message: "Logout successful" });
+};
+
+const createNoteHandler = async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const newNote = await pool.query(
+      "INSERT INTO notes (username, title, content) VALUES ($1, $2, $3) RETURNING *",
+      [req.user.username, title, content]
+    );
+    res.json(newNote.rows[0]);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+const getNotesHandler = async (req, res) => {
+  try {
+    const notes = await pool.query(
+      "SELECT id, username, title, content, created_at FROM notes WHERE username = $1 ORDER BY created_at DESC",
+      [req.user.username]
+    );
+    res.json(notes.rows);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+const deleteNoteHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM notes WHERE id = $1 AND username = $2", [id, req.user.username]);
+    res.json({ message: "Note deleted successfully" });
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+const updateUserHandler = async (req, res) => {
+  try {
+    const {
+      username,
+      firstname,
+      lastname,
+      email,
+      gender,
+      nationality,
+      profile_image_url,
+      dob,
+      telephone_number,
+      password,
+    } = req.body;
+    const userId = req.user.user_id;
+
+    const updateUserQuery = `
+      UPDATE users
+      SET username = $1, firstname = $2, lastname = $3, email = $4, gender = $5, nationality = $6, profile_image_url = $7, dob = $8, telephone_numbers = $9
+      WHERE user_id = $10
+      RETURNING *;
+    `;
+    const updateUserParams = [
+      username,
+      firstname,
+      lastname,
+      email,
+      gender,
+      nationality,
+      profile_image_url,
+      dob,
+      telephone_number,
+      userId
+    ];
+
+    const userResult = await pool.query(updateUserQuery, updateUserParams);
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const updatePasswordQuery = "UPDATE users SET password_hash = $1 WHERE user_id = $2";
+      await pool.query(updatePasswordQuery, [hashedPassword, userId]);
+    }
+
+    res.json(userResult.rows[0]);
+  } catch (err) {
+    console.error("Server error:", err);
+    res.status(500).send("Server error");
+  }
+};
+
+module.exports = {
+  authenticateToken,
+  signupHandler,
+  loginHandler,
+  getUserHandler,
+  logoutHandler,
+  createNoteHandler,
+  getNotesHandler,
+  deleteNoteHandler,
+  updateUserHandler
+};
