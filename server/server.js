@@ -29,7 +29,9 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
-// Middleware
+/**
+ * Middleware setup
+ */
 app.use(
   cors({
     origin: 'http://localhost:3000',
@@ -44,7 +46,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+/**
+ * Routes
+ */
 app.post('/signup', signupHandler);
 app.post('/login', loginHandler);
 app.get('/user', authenticateToken, getUserHandler);

@@ -1,0 +1,12 @@
+{
+  "source": {
+    "include": ["server.js", "handlers.js", "assessments.js", "journalPosts.js", "therapists.js", "workshopsEvents.js"],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "readme": "../README.md"
+  }
+}
